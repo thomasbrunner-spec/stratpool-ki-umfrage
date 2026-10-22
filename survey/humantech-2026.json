@@ -1,0 +1,326 @@
+{
+  "id": "humantech-2026",
+  "version": "0.2",
+  "title": "KI bei HumanTech – Ihre Sicht zählt.",
+  "intro": {
+    "title": "KI bei HumanTech – Ihre Sicht zählt.",
+    "text": "Am {{workshopDate}} erarbeiten wir gemeinsam im Workshop, wo KI bei HumanTech Spine den größten Nutzen stiftet. Ihre Antworten bilden die Grundlage für die Agenda. Die Umfrage dauert ca. 10 Minuten. Sie können jederzeit unterbrechen und später weitermachen. Es gibt keine falschen Antworten, eine ehrliche Einschätzung hilft uns am meisten.",
+    "note": "Hinweis: Die Antworten werden mit Ihrem Namen gespeichert und nur von den ERA-Moderatoren ausgewertet. Im Workshop zeigen wir zusammengefasste Ergebnisse."
+  },
+  "outro": {
+    "title": "Vielen Dank!",
+    "text": "Ihre Antworten sind gespeichert. Bis {{deadline}} können Sie sie noch ändern."
+  },
+  "functions": [
+    "Geschäftsführung",
+    "Clinical Affairs",
+    "Regulatory Affairs",
+    "Qualitätsmanagement",
+    "F&E",
+    "Produktmanagement",
+    "Vertrieb/ID",
+    "Marketing",
+    "Finance",
+    "Legal & HR",
+    "Projektmanagement",
+    "Sonstiges"
+  ],
+  "blocks": [
+    { "id": "A", "title": "Einstieg" },
+    { "id": "B", "title": "Nutzung heute" },
+    { "id": "C", "title": "Kenntnisse & Haltung" },
+    { "id": "E", "title": "Transformationspfad" },
+    { "id": "D", "title": "Reifegrad der Organisation" },
+    { "id": "F", "title": "Potenziale & Anwendungsfelder" },
+    { "id": "G", "title": "Hürden & Rahmen" },
+    { "id": "H", "title": "Workshop" }
+  ],
+  "scales": {
+    "ainative": {
+      "levels": [
+        { "value": 0, "title": "Abwarten", "description": "KI offiziell kein Thema" },
+        { "value": 1, "title": "Schatten-KI", "description": "Private Accounts, ungesteuert" },
+        { "value": 2, "title": "Freigegeben", "description": "Lizenzen, Regeln, Führerschein" },
+        { "value": 3, "title": "Fragmentiert", "description": "KI-Inseln, unverbunden" },
+        { "value": 4, "title": "Integriert", "description": "Wertströme Ende-zu-Ende neu gestaltet" },
+        { "value": 5, "title": "Agentenbasiert", "description": "Mensch + Agent als Team" },
+        { "value": 6, "title": "AI-Native", "description": "Organisiert um Absicht und Ergebnis" }
+      ],
+      "brackets": [
+        { "from": 0, "to": 1, "label": "Ungesteuert" },
+        { "from": 2, "to": 4, "label": "Betriebsmodell 1.0 · KI-gestützt" },
+        { "from": 5, "to": 5, "label": "2.0 · Agenten" },
+        { "from": 6, "to": 6, "label": "3.0 · Native" }
+      ]
+    },
+    "maturity": {
+      "levels": [
+        { "value": 1, "title": "Initiierung", "description": "" },
+        { "value": 2, "title": "Entwicklung", "description": "" },
+        { "value": 3, "title": "Anwendung", "description": "" },
+        { "value": 4, "title": "Integration", "description": "" },
+        { "value": 5, "title": "Optimierung", "description": "" }
+      ]
+    }
+  },
+  "questions": [
+    {
+      "id": "A1", "block": "A", "type": "short_text", "required": true, "viz": "wordcloud", "maxLength": 40,
+      "short": "Ein Wort zu KI",
+      "title": "Ein Wort: Was verbinden Sie mit KI bei der Arbeit?",
+      "help": "Ein bis zwei Wörter genügen."
+    },
+    {
+      "id": "B1", "block": "B", "type": "single", "required": true,
+      "short": "Nutzungshäufigkeit",
+      "title": "Wie oft nutzen Sie KI-Werkzeuge für Ihre Arbeit?",
+      "options": [
+        { "id": "nie", "label": "nie" },
+        { "id": "selten", "label": "seltener als monatlich" },
+        { "id": "monatlich", "label": "mehrmals im Monat" },
+        { "id": "woechentlich", "label": "wöchentlich" },
+        { "id": "taeglich", "label": "täglich" },
+        { "id": "mehrmals_taeglich", "label": "mehrmals täglich" }
+      ]
+    },
+    {
+      "id": "B2", "block": "B", "type": "multi", "required": true,
+      "short": "Genutzte KI-Werkzeuge",
+      "title": "Welche KI-Werkzeuge nutzen Sie beruflich?",
+      "help": "Mehrfachauswahl möglich.",
+      "options": [
+        { "id": "m365_copilot", "label": "Microsoft Copilot (in Word/Outlook/Teams)" },
+        { "id": "copilot_chat", "label": "Copilot Chat" },
+        { "id": "chatgpt", "label": "ChatGPT" },
+        { "id": "claude", "label": "Claude" },
+        { "id": "gemini", "label": "Google Gemini" },
+        { "id": "perplexity", "label": "Perplexity" },
+        { "id": "deepl", "label": "DeepL" },
+        { "id": "fachsoftware", "label": "KI in Fachsoftware/ERP" },
+        { "id": "bild_video", "label": "Bild-/Videogeneratoren" },
+        { "id": "keine", "label": "keine", "exclusive": true },
+        { "id": "sonstige", "label": "Sonstige", "other": true }
+      ]
+    },
+    {
+      "id": "B3", "block": "B", "type": "single", "required": true,
+      "short": "Private KI-Zugänge (Schatten-KI)",
+      "title": "Nutzen Sie für berufliche Aufgaben auch KI-Zugänge, die nicht vom Unternehmen bereitgestellt sind (z. B. private Accounts)?",
+      "options": [
+        { "id": "nein", "label": "nein" },
+        { "id": "gelegentlich", "label": "gelegentlich" },
+        { "id": "regelmaessig", "label": "regelmäßig" },
+        { "id": "keine_angabe", "label": "keine Angabe" }
+      ]
+    },
+    {
+      "id": "C1", "block": "C", "type": "slider", "required": true, "viz": "dots",
+      "min": 0, "max": 100, "step": 1, "minLabel": "Gar nicht", "maxLabel": "Profi",
+      "short": "Selbsteinschätzung KI-Kenntnisse",
+      "title": "Wie gut kennen Sie sich mit KI aus – ganz ehrlich?"
+    },
+    {
+      "id": "C2", "block": "C", "type": "multi", "required": true,
+      "short": "Was schon selbst gemacht",
+      "title": "Was davon haben Sie mit KI schon selbst gemacht?",
+      "help": "Mehrfachauswahl möglich.",
+      "groups": [
+        { "id": "anwenden", "label": "Anwenden", "level": 1 },
+        { "id": "inhalte", "label": "Mit eigenen Inhalten arbeiten", "level": 2 },
+        { "id": "steuern", "label": "Gezielt steuern", "level": 3 },
+        { "id": "bauen", "label": "Selbst bauen", "level": 4 }
+      ],
+      "options": [
+        { "id": "texte", "group": "anwenden", "label": "Texte oder E-Mails formulieren bzw. überarbeiten lassen" },
+        { "id": "uebersetzen", "group": "anwenden", "label": "Übersetzen lassen" },
+        { "id": "wissen", "group": "anwenden", "label": "Fragen stellen, Wissen abfragen (statt Suchmaschine)" },
+        { "id": "dokumente", "group": "inhalte", "label": "Dokumente, Protokolle oder Daten hochladen und zusammenfassen oder auswerten lassen" },
+        { "id": "praesentationen", "group": "inhalte", "label": "Präsentationen, Tabellen oder Grafiken erstellen lassen" },
+        { "id": "prompts", "group": "steuern", "label": "Prompts gezielt aufbauen (Rolle, Kontext, Beispiele) und als Vorlage wiederverwenden" },
+        { "id": "assistenten", "group": "steuern", "label": "Eigene Assistenten einrichten (z. B. Copilot-Agent, Custom GPT, Projekt mit eigenen Dokumenten)" },
+        { "id": "automatisieren", "group": "bauen", "label": "Abläufe mit KI automatisieren (z. B. Power Automate, Make, n8n)" },
+        { "id": "apps", "group": "bauen", "label": "Eigene Tools oder Apps mit KI entwickeln" },
+        { "id": "nichts", "label": "Noch nichts davon", "exclusive": true },
+        { "id": "sonstiges", "label": "Sonstiges", "other": true }
+      ]
+    },
+    {
+      "id": "C3", "block": "C", "type": "slider", "required": true, "viz": "gauge",
+      "min": 0, "max": 100, "step": 1, "minLabel": "klein", "maxLabel": "riesig",
+      "short": "Chance für den eigenen Arbeitsbereich",
+      "title": "Wie sehen Sie die Chance, die KI für Ihren Arbeitsbereich bietet?"
+    },
+    {
+      "id": "E1", "block": "E", "type": "stairs", "scale": "ainative", "required": true,
+      "short": "AI-Native-Stufe heute",
+      "title": "Wo steht HumanTech heute?",
+      "help": "Wählen Sie die Stufe, die den heutigen Stand am besten beschreibt."
+    },
+    {
+      "id": "E2", "block": "E", "type": "stairs", "scale": "ainative", "required": true,
+      "short": "AI-Native-Stufe in drei Jahren",
+      "title": "Wo sollte HumanTech in drei Jahren stehen?"
+    },
+    {
+      "id": "D", "block": "D", "type": "grid", "scale": "maturity", "required": true,
+      "short": "Reifegrad je Bereich",
+      "title": "Wie weit ist HumanTech in diesen sieben Bereichen? Bauchgefühl genügt.",
+      "naLabel": "kann ich nicht beurteilen",
+      "rows": [
+        { "id": "strategie", "label": "Geschäftsmodell & Strategie", "descriptions": [
+          "Erste Überlegungen zur KI-Nutzung, keine klare Strategie.",
+          "Entwicklung erster KI-Strategien, Pilotprojekte, erste Überlegungen zur Transformation des Geschäftsmodells.",
+          "Klare, mit den Geschäftszielen abgestimmte KI-Strategie, Anpassung des Geschäftsmodells an KI.",
+          "KI ist vollständig in das Geschäftsmodell integriert, treibt Innovationen und Marktchancen.",
+          "KI-Strategie führt zu neuen Geschäftsmodellen, das Unternehmen nutzt KI, um Märkte neu zu gestalten."
+        ] },
+        { "id": "organisation", "label": "Organisation & Prozesse", "descriptions": [
+          "Keine organisatorische Verankerung von KI.",
+          "Erste organisatorische Strukturen und Prozesse für KI-Projekte.",
+          "KI ist in ausgewählten Prozessen fest etabliert.",
+          "KI ist abteilungsübergreifend integriert.",
+          "KI ist zentraler Bestandteil der Organisationskultur, mit kontinuierlicher Prozessoptimierung."
+        ] },
+        { "id": "menschen", "label": "Menschen & Kultur", "descriptions": [
+          "Geringes Bewusstsein und geringe KI-Kenntnisse.",
+          "Erste Schulungen und Sensibilisierung für KI.",
+          "Weit verbreitete KI-Kompetenzen und Akzeptanz im Arbeitsalltag.",
+          "KI-Kompetenzen sind Teil der beruflichen Entwicklung, interdisziplinäre Zusammenarbeit.",
+          "KI-Exzellenz in der Belegschaft, kontinuierliche Weiterbildung und Innovationskultur."
+        ] },
+        { "id": "technologie", "label": "Technologie & Daten", "descriptions": [
+          "Grundlegende IT-Infrastruktur, ohne KI-Ausrichtung.",
+          "Erste spezifische Technologien und Datenstrukturen für KI.",
+          "Fortgeschrittene Technologien unterstützen KI-Anwendungen, Daten werden systematisch genutzt.",
+          "Integrierte Technologieplattformen und strukturierte Datenstrategie zur Unterstützung von KI.",
+          "Führende Technologie- und Dateninfrastruktur für kontinuierliche Innovation und Echtzeitanpassung."
+        ] },
+        { "id": "kunden", "label": "Prozesse & Kunden", "descriptions": [
+          "Keine Nutzung von KI in Prozessen oder der Kundeninteraktion.",
+          "Erste Pilotprojekte zur Prozessautomatisierung und Kundeninteraktion.",
+          "KI optimiert Prozesse und verbessert die Kundeninteraktion.",
+          "Vollständig integrierte, KI-gestützte Prozesse und personalisierte Kundeninteraktionen.",
+          "KI transformiert Prozesse und bietet maßgeschneiderte Echtzeit-Kundenerlebnisse."
+        ] },
+        { "id": "recht", "label": "Recht & Ethik", "descriptions": [
+          "Kaum Berücksichtigung von rechtlichen und ethischen Fragen.",
+          "Erste Überlegungen zu Compliance, Datenschutz und Ethik.",
+          "Klare Richtlinien für rechtliche und ethische Fragestellungen, Schulungen und Implementierung.",
+          "Umfassende Integration von rechtlichen und ethischen Standards, kontinuierliche Überprüfung.",
+          "Vorreiterrolle in der Entwicklung und Implementierung von Best Practices in Recht und Ethik."
+        ] },
+        { "id": "datenschutz", "label": "Datenschutz & Compliance", "descriptions": [
+          "Keine Berücksichtigung von Datenschutz und Compliance.",
+          "Erste Auseinandersetzung mit Datenschutzanforderungen.",
+          "Klar definierte Datenschutz- und Compliance-Richtlinien werden in KI-Projekten umgesetzt.",
+          "Datenschutz- und Compliance-Richtlinien sind vollständig in alle Prozesse integriert.",
+          "Datenschutz & Compliance als führende Standards, proaktive Maßnahmen und Branchenvorbild."
+        ] }
+      ]
+    },
+    {
+      "id": "F1", "block": "F", "type": "points", "budget": 10, "required": true,
+      "short": "Wo KI zuerst ansetzen soll",
+      "title": "Wo sollte KI bei HumanTech als Erstes ansetzen? Verteilen Sie 10 Punkte.",
+      "help": "Mehr Punkte = höhere Priorität. Sie können alle Punkte auf einen Bereich setzen oder verteilen.",
+      "options": [
+        { "id": "clinical", "label": "Clinical Affairs (Literatur, klinische Bewertung)" },
+        { "id": "regulatory", "label": "Regulatory & Konformitätsdokumentation (MDR, ISO 13485)" },
+        { "id": "qm", "label": "Qualitätsmanagement (CAPA, Audits, SOPs)" },
+        { "id": "wissen", "label": "Wissensmanagement & interne Suche" },
+        { "id": "fue", "label": "F&E / Produktentwicklung" },
+        { "id": "vertrieb", "label": "Vertrieb, Angebote & Kundenkommunikation" },
+        { "id": "marketing", "label": "Marketing & Content" },
+        { "id": "finance", "label": "Finance & Controlling" },
+        { "id": "einkauf", "label": "Einkauf & Lieferanten" },
+        { "id": "legal_hr", "label": "Legal, Verträge & HR" },
+        { "id": "schulung", "label": "Schulung & Qualifikationsnachweise" }
+      ]
+    },
+    {
+      "id": "F2", "block": "F", "type": "text_list", "required": true, "fields": 3, "requiredFields": 1, "maxLength": 400,
+      "short": "Zeitfresser & Ideen",
+      "title": "Welche Aufgaben in Ihrem Arbeitsalltag kosten Sie am meisten Zeit und könnten durch KI unterstützt werden? Gern auch eine konkrete Idee für einen KI-Anwendungsfall.",
+      "help": "Das erste Feld ist Pflicht, die weiteren sind optional.",
+      "placeholder": "z. B. Literaturrecherche für die klinische Bewertung"
+    },
+    {
+      "id": "F4", "block": "F", "type": "slider", "required": true, "viz": "dots",
+      "min": 0, "max": 15, "step": 0.5, "minLabel": "0 Std.", "maxLabel": "15 Std.", "unit": "Std.",
+      "short": "Zeitgewinn pro Woche",
+      "title": "Wie viel Zeit könnten Sie pro Woche gewinnen, wenn KI Sie gut unterstützt?"
+    },
+    {
+      "id": "G1", "block": "G", "type": "multi", "required": true, "max": 2,
+      "short": "Was zurückhält",
+      "title": "Was hält Sie bei KI am meisten zurück? (max. 2)",
+      "options": [
+        { "id": "datenschutz", "label": "Datenschutz & Vertraulichkeit" },
+        { "id": "regeln", "label": "fehlende Regeln, was erlaubt ist" },
+        { "id": "wissen", "label": "zu wenig Wissen/Schulung" },
+        { "id": "zeit", "label": "keine Zeit zum Ausprobieren" },
+        { "id": "tools", "label": "passende Tools fehlen" },
+        { "id": "qualitaet", "label": "Qualität/Fehler der Ergebnisse" },
+        { "id": "regulatorik", "label": "regulatorische Unsicherheit (MDR, ISO 13485)" },
+        { "id": "nichts", "label": "nichts – ich lege los", "exclusive": true },
+        { "id": "sonstiges", "label": "Sonstiges", "other": true }
+      ]
+    },
+    {
+      "id": "G3", "block": "G", "type": "multi", "required": true,
+      "short": "Was die KI-Richtlinie regeln muss",
+      "title": "Was sollte eine KI-Richtlinie für HumanTech unbedingt regeln?",
+      "help": "Mehrfachauswahl möglich.",
+      "options": [
+        { "id": "tools", "label": "erlaubte Tools" },
+        { "id": "daten", "label": "Umgang mit vertraulichen/personenbezogenen Daten" },
+        { "id": "pruefpflichten", "label": "Prüfpflichten für KI-Ergebnisse" },
+        { "id": "kennzeichnung", "label": "Kennzeichnung von KI-Inhalten" },
+        { "id": "schulung", "label": "Schulung & Nachweise" },
+        { "id": "verantwortung", "label": "Verantwortlichkeiten / Ansprechpartner" },
+        { "id": "freigabe", "label": "Freigabeprozess für neue Anwendungsfälle" }
+      ]
+    },
+    {
+      "id": "H1", "block": "H", "type": "long_text", "required": true, "maxLength": 1000,
+      "short": "Erwartung an den Workshop",
+      "title": "Was muss am Ende des Workshops herauskommen, damit er sich für Sie gelohnt hat?",
+      "titleNonWorkshop": "Was müsste die KI-Initiative für Sie verändern, damit sie sich gelohnt hat?"
+    },
+    {
+      "id": "H2", "block": "H", "type": "short_text", "required": false, "viz": "wall", "maxLength": 200,
+      "short": "Offene Frage für den Workshop",
+      "title": "Welche Frage sollen wir im Workshop unbedingt klären?"
+    },
+    {
+      "id": "H3", "block": "H", "type": "long_text", "required": false, "maxLength": 1000,
+      "short": "Bedenken & Sonstiges",
+      "title": "Welche Bedenken sollten wir ernst nehmen – oder gibt es sonst etwas, das wir wissen sollten?"
+    }
+  ],
+  "aiTargets": [
+    { "key": "F2", "label": "Zeitfresser & Use-Case-Kandidaten", "questions": ["F2"], "mode": "clusters" },
+    { "key": "H1", "label": "Erwartungen an Workshop und Initiative", "questions": ["H1"], "mode": "clusters" },
+    { "key": "H3", "label": "Bedenken & Hinweise", "questions": ["H3"], "mode": "clusters" },
+    { "key": "synthesis", "label": "Implikationen für den Workshop", "questions": [], "mode": "synthesis" }
+  ],
+  "deck": [
+    { "id": "s-title", "eyebrow": "Vorab-Befragung", "title": "KI bei HumanTech – Ergebnisse der Befragung", "widgets": [{ "kind": "participation" }] },
+    { "id": "s-path", "eyebrow": "Transformationspfad", "title": "Wo wir heute stehen – und wo wir hinwollen", "widgets": [{ "kind": "compare_stairs", "today": "E1", "target": "E2" }] },
+    { "id": "s-mood", "eyebrow": "Stimmungsbild", "title": "Was verbinden Sie mit KI bei der Arbeit?", "widgets": [{ "kind": "question", "q": "A1" }, { "kind": "question", "q": "C3" }] },
+    { "id": "s-usage", "eyebrow": "Nutzung heute", "title": "Wie oft und womit gearbeitet wird", "widgets": [{ "kind": "question", "q": "B1" }, { "kind": "question", "q": "B2" }] },
+    { "id": "s-shadow", "eyebrow": "Nutzung heute", "title": "Schatten-KI: private Zugänge für berufliche Aufgaben", "widgets": [{ "kind": "question", "q": "B3" }] },
+    { "id": "s-depth", "eyebrow": "Kenntnisse", "title": "Was die Teilnehmenden mit KI schon selbst tun", "widgets": [{ "kind": "question", "q": "C2" }, { "kind": "depth", "q": "C2" }] },
+    { "id": "s-self", "eyebrow": "Kenntnisse & Haltung", "title": "Selbsteinschätzung, Nutzungstiefe und Haltung", "widgets": [
+      { "kind": "self_vs_depth", "self": "C1", "depth": "C2" },
+      { "kind": "matrix", "x": "C1", "y": "C3", "xLabel": "Kenntnisse", "yLabel": "Chance", "quadrants": ["Beobachter", "Starter", "Kritische Kenner", "Treiber"] }
+    ] },
+    { "id": "s-maturity", "eyebrow": "Reifegrad", "title": "Reifegrad-Profil in sieben Bereichen", "widgets": [{ "kind": "question", "q": "D" }] },
+    { "id": "s-priority", "eyebrow": "Potenziale", "title": "Wo KI als Erstes ansetzen sollte", "widgets": [{ "kind": "question", "q": "F1" }] },
+    { "id": "s-usecases", "eyebrow": "Potenziale", "title": "Zeitfresser & Use-Case-Kandidaten", "widgets": [{ "kind": "ai", "key": "F2" }, { "kind": "question", "q": "F4" }] },
+    { "id": "s-barriers", "eyebrow": "Hürden & Rahmen", "title": "Was zurückhält – und was die Richtlinie regeln muss", "widgets": [{ "kind": "question", "q": "G1" }, { "kind": "question", "q": "G3" }] },
+    { "id": "s-expect", "eyebrow": "Workshop", "title": "Erwartungen und offene Fragen", "widgets": [{ "kind": "ai", "key": "H1" }, { "kind": "question", "q": "H2" }] },
+    { "id": "s-concerns", "eyebrow": "Workshop", "title": "Bedenken, die wir ernst nehmen", "widgets": [{ "kind": "ai", "key": "H3" }] },
+    { "id": "s-synthesis", "eyebrow": "Synthese", "title": "Implikationen für den heutigen Tag", "widgets": [{ "kind": "ai", "key": "synthesis" }] }
+  ]
+}
