@@ -7,6 +7,7 @@ import { db, insertParticipant, saveAnswer } from '../server/db.js';
 import { getSurvey } from '../server/surveys.js';
 import { validateAnswer } from '../shared/validate.js';
 import type { AnswerValue, MultiQuestion } from '../shared/types.js';
+import { isVisible } from '../shared/validate.js';
 
 if (process.env.NODE_ENV === 'production') {
   console.error('Refusing to seed fake data in production.');
@@ -104,9 +105,9 @@ PEOPLE.forEach(([name, func, company, workshop], idx) => {
   const opt = clamp(0.55 + gauss() * 0.5 + k * 0.2, 0, 1); // optimism trait
   const a: Record<string, AnswerValue> = {};
   a.A1 = pick(WORDS);
-  a.B1 = ['nie', 'selten', 'monatlich', 'woechentlich', 'taeglich', 'mehrmals_taeglich'][clamp(Math.round(k * 5 + gauss()), 0, 5)]!;
   const tools = ['m365_copilot', 'copilot_chat', 'chatgpt', 'deepl', 'claude', 'perplexity', 'gemini'].filter((_, i) => rnd() < k * (i < 3 ? 1.1 : 0.5));
   a.B2 = tools.length ? { selected: tools } : { selected: ['keine'] };
+  a.B2a = clamp(Math.round(4 + k * 4 + gauss() * 2), 0, 10);
   a.B3 = rnd() < 0.15 ? 'keine_angabe' : ['nein', 'gelegentlich', 'regelmaessig'][clamp(Math.round(k * 2.2 + gauss() * 0.8), 0, 2)]!;
   a.C1 = Math.round(clamp(k * 100 + gauss() * 15, 2, 98));
   const depthMax = clamp(Math.round(k * 4 + gauss()), 0, 4);
@@ -116,12 +117,17 @@ PEOPLE.forEach(([name, func, company, workshop], idx) => {
   });
   a.C2 = did.length ? { selected: did.map((o) => o.id) } : { selected: ['nichts'] };
   a.C3 = Math.round(clamp(opt * 100 + gauss() * 12, 5, 100));
-  a.E1 = clamp(Math.round(1.4 + gauss() * 1.2), 0, 4);
-  a.E2 = clamp(Math.round(3.6 + opt * 1.2 + gauss()), 2, 6);
-  const grid = q('D');
-  if (grid.type === 'grid') {
-    a.D = Object.fromEntries(grid.rows.map((r) => [r.id, rnd() < 0.12 ? null : clamp(Math.round(1.8 + gauss() * 1.1 + (r.id === 'datenschutz' ? 0.6 : 0)), 1, 5)]));
+  const leader = func === 'Geschäftsführung';
+  // leadership rates today's maturity a bit higher than the team – a typical perception gap
+  const base = [1.9, 1.6, 1.8, 2.2, 1.5, 1.4, 2.4];
+  for (let d = 1; d <= 7; d++) {
+    if (rnd() < (d === 5 || d === 6 ? 0.25 : 0.08)) a[`D${d}`] = { now: null };
+    else {
+      const now = clamp(Math.round(base[d - 1]! + (leader ? 0.7 : 0) + gauss() * 0.8), 1, 5);
+      a[`D${d}`] = { now, target: clamp(now + Math.round(1 + opt * 1.8 + gauss() * 0.6), now, 5) };
+    }
   }
+  a.E2 = clamp(Math.round(3.4 + opt * 1.2 + gauss()), 2, 6);
   const prefs = ['clinical', 'regulatory', 'qm', 'wissen', 'fue', 'vertrieb', 'marketing', 'finance', 'einkauf', 'legal_hr', 'schulung'];
   const pts: Record<string, number> = {};
   for (let i = 0; i < 10; i++) {
@@ -129,12 +135,31 @@ PEOPLE.forEach(([name, func, company, workshop], idx) => {
     pts[id] = (pts[id] ?? 0) + 1;
   }
   a.F1 = pts;
-  a.F2 = [pick(TASKS), rnd() < 0.7 ? pick(TASKS) : '', rnd() < 0.4 ? pick(TASKS) : ''];
+  const task = pick(TASKS.filter((t) => !t.startsWith('Idee')));
+  const dataFor: Record<string, string> = {
+    Literaturrecherche: 'oeffentlich',
+    Technische: 'intern',
+    Protokolle: 'intern',
+    SOPs: 'intern',
+    Angebote: 'vertraulich',
+    'CAPA-Berichte': 'vertraulich',
+    Übersetzungen: 'oeffentlich',
+    Lieferantenkommunikation: 'vertraulich',
+    Auswertungen: 'vertraulich',
+    Schulungsnachweise: 'personenbezogen',
+    Verträge: 'vertraulich',
+    Marketingtexte: 'oeffentlich',
+  };
+  const data = Object.entries(dataFor).find(([key]) => task.includes(key))?.[1] ?? 'intern';
+  a.F2 = { task, hours: Math.round(clamp(2 + rnd() * 7, 0.5, 20) * 2) / 2, data: rnd() < 0.08 ? 'unbekannt' : data };
+  if (rnd() < 0.6) a.F3 = [pick(TASKS), rnd() < 0.3 ? pick(TASKS) : ''];
   a.F4 = Math.round(clamp(2 + opt * 6 + gauss() * 3, 0, 15) * 2) / 2;
   const barriers = ['datenschutz', 'regeln', 'wissen', 'zeit', 'tools', 'qualitaet', 'regulatorik'];
   a.G1 = { selected: [...new Set([pick(barriers.slice(0, 3)), pick(barriers)])].slice(0, 2) };
-  a.G3 = { selected: ['tools', 'daten', 'pruefpflichten', 'kennzeichnung', 'schulung', 'verantwortung', 'freigabe'].filter(() => rnd() < 0.55) };
-  if ((a.G3 as { selected: string[] }).selected.length === 0) a.G3 = { selected: ['daten'] };
+  // traffic light: routine texts mostly green, regulatory and HR topics mostly yellow/red
+  const risk: Record<string, number> = { texte: 0.2, uebersetzen: 0.8, literatur: 1.1, capa: 1.4, mdr: 1.7, lieferanten: 1.2, bewerbungen: 2.2 };
+  a.G2 = Object.fromEntries(Object.entries(risk).map(([id, r]) => [id, rnd() < 0.07 ? null : clamp(Math.round(1 + r + gauss() * 0.7 - opt * 0.4), 1, 3)]));
+  a.H0 = rnd() < k * 0.45 ? 'verantwortlich' : rnd() < 0.55 ? 'mitwirkend' : pick(['eher_nicht', 'weiss_nicht']);
   a.H1 = pick(EXPECT);
   if (rnd() < 0.6) a.H2 = pick(QUESTIONS);
   const concern = pick(CONCERNS);
@@ -144,6 +169,7 @@ PEOPLE.forEach(([name, func, company, workshop], idx) => {
   const keys = Object.keys(a);
   const upto = idx === 14 || idx === 15 ? Math.floor(keys.length / 2) : keys.length;
   for (const id of keys.slice(0, upto)) {
+    if (!isVisible(q(id), a)) continue;
     const v = validateAnswer(q(id), a[id], survey);
     if (!v.ok) throw new Error(`Invalid fake answer for ${id}: ${v.error}`);
     saveAnswer(p.id, id, v.value);

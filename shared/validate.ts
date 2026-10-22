@@ -1,4 +1,4 @@
-import type { AnswerMap, AnswerValue, MultiAnswer, Question, SurveyDefinition } from './types.js';
+import type { AnswerMap, AnswerValue, MaturityAnswer, MultiAnswer, Question, SurveyDefinition, UseCaseAnswer } from './types.js';
 
 export type ValidationResult = { ok: true; value: AnswerValue } | { ok: false; error: string };
 
@@ -57,14 +57,45 @@ export function validateAnswer(q: Question, raw: unknown, survey?: SurveyDefinit
     }
     case 'grid': {
       if (!isRecord(raw)) return fail('Bewertung erwartet.');
+      const max = survey?.scales[q.scale]?.levels.length ?? 5;
       const value: Record<string, number | null> = {};
       for (const row of q.rows) {
         if (!(row.id in raw)) continue;
         const v = raw[row.id];
         if (v === null) value[row.id] = null;
-        else if (typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= row.descriptions.length) value[row.id] = v;
+        else if (typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= (row.descriptions?.length ?? max)) value[row.id] = v;
         else return fail('Ungültige Stufe.');
       }
+      return { ok: true, value };
+    }
+    case 'maturity': {
+      if (!isRecord(raw)) return fail('Bewertung erwartet.');
+      const inRange = (v: unknown) => v === null || (typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= q.descriptions.length);
+      if (!('now' in raw) || !inRange(raw.now)) return fail('Ungültige Stufe für heute.');
+      const value: MaturityAnswer = { now: raw.now as number | null };
+      // "cannot judge" today makes a target meaningless
+      if (value.now !== null && raw.target !== undefined) {
+        if (!inRange(raw.target)) return fail('Ungültige Stufe für das Ziel.');
+        value.target = raw.target as number | null;
+      }
+      return { ok: true, value };
+    }
+    case 'usecase': {
+      if (!isRecord(raw)) return fail('Angaben erwartet.');
+      const task = cleanText(raw.task ?? '', q.maxLength) ?? '';
+      let hours: number | null = null;
+      if (raw.hours !== null && raw.hours !== undefined) {
+        if (typeof raw.hours !== 'number' || !Number.isFinite(raw.hours) || raw.hours < 0 || raw.hours > q.hoursMax) {
+          return fail('Ungültige Stundenzahl.');
+        }
+        hours = Math.round(raw.hours / q.hoursStep) * q.hoursStep;
+      }
+      let data: string | null = null;
+      if (raw.data !== null && raw.data !== undefined) {
+        if (typeof raw.data !== 'string' || !q.dataOptions.some((o) => o.id === raw.data)) return fail('Ungültige Datenart.');
+        data = raw.data;
+      }
+      const value: UseCaseAnswer = { task, hours, data };
       return { ok: true, value };
     }
     case 'points': {
@@ -113,6 +144,15 @@ export function isAnswered(q: Question, v: AnswerValue | undefined, survey?: Sur
     }
     case 'grid':
       return isRecord(v) && q.rows.every((r) => r.id in v);
+    case 'maturity': {
+      if (!isRecord(v) || !('now' in v)) return false;
+      return v.now === null || typeof v.target === 'number';
+    }
+    case 'usecase': {
+      if (!isRecord(v)) return false;
+      const u = v as unknown as UseCaseAnswer;
+      return typeof u.task === 'string' && u.task.trim().length > 0 && typeof u.hours === 'number' && typeof u.data === 'string';
+    }
     case 'points': {
       if (!isRecord(v)) return false;
       const sum = Object.values(v).reduce<number>((a, b) => a + (typeof b === 'number' ? b : 0), 0);
@@ -121,8 +161,21 @@ export function isAnswered(q: Question, v: AnswerValue | undefined, survey?: Sur
   }
 }
 
+/** Conditional questions are only shown when the referenced answer contains one of the options. */
+export function isVisible(q: Question, answers: AnswerMap): boolean {
+  if (!q.showIf) return true;
+  const ref = answers[q.showIf.q];
+  if (typeof ref === 'string') return q.showIf.anyOf.includes(ref);
+  if (isRecord(ref) && Array.isArray(ref.selected)) return (ref.selected as string[]).some((s) => q.showIf!.anyOf.includes(s));
+  return false;
+}
+
+export function visibleQuestions(survey: SurveyDefinition, answers: AnswerMap): Question[] {
+  return survey.questions.filter((q) => isVisible(q, answers));
+}
+
 export function missingRequired(survey: SurveyDefinition, answers: AnswerMap): string[] {
-  return survey.questions
+  return visibleQuestions(survey, answers)
     .filter((q) => q.required && !isAnswered(q, answers[q.id], survey))
     .map((q) => q.id);
 }

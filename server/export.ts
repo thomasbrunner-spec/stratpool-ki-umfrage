@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import type { AnswerValue, MultiAnswer, Question, SurveyDefinition } from '../shared/types.js';
+import type { AnswerValue, MaturityAnswer, MultiAnswer, Question, SurveyDefinition, UseCaseAnswer } from '../shared/types.js';
 import { getAnswers, listParticipants, type ParticipantRow } from './db.js';
 
 type Cell = string | number | null;
@@ -7,15 +7,29 @@ type Cell = string | number | null;
 function columnsFor(survey: SurveyDefinition, q: Question): { header: string; get: (v: AnswerValue | undefined) => Cell }[] {
   const label = `${q.id} ${q.short}`;
   switch (q.type) {
-    case 'grid':
+    case 'maturity':
+      return [
+        { header: `${q.id} ${q.dimension} heute`, get: (v) => (v ? ((v as MaturityAnswer).now ?? 'k. A.') : null) },
+        { header: `${q.id} ${q.dimension} Ziel`, get: (v) => (v ? ((v as MaturityAnswer).target ?? null) : null) },
+      ];
+    case 'usecase':
+      return [
+        { header: `${q.id} Aufgabe`, get: (v) => (v ? (v as UseCaseAnswer).task : null) },
+        { header: `${q.id} Std./Woche`, get: (v) => (v ? (v as UseCaseAnswer).hours : null) },
+        { header: `${q.id} Daten`, get: (v) => (v ? (q.dataOptions.find((o) => o.id === (v as UseCaseAnswer).data)?.label ?? null) : null) },
+      ];
+    case 'grid': {
+      const levels = survey.scales[q.scale]?.levels ?? [];
       return q.rows.map((r) => ({
         header: `${q.id} ${r.label}`,
         get: (v) => {
           if (!v || typeof v !== 'object' || Array.isArray(v) || !(r.id in v)) return null;
           const n = (v as Record<string, number | null>)[r.id];
-          return n === null || n === undefined ? 'k. A.' : n;
+          if (n === null || n === undefined) return q.naLabel;
+          return q.viz === 'ampel' ? (levels[n - 1]?.title ?? n) : n;
         },
       }));
+    }
     case 'points':
       return q.options.map((o) => ({
         header: `${q.id} ${o.label}`,

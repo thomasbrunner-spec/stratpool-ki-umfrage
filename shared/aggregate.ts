@@ -1,5 +1,8 @@
 import type {
   AnswerValue,
+  MaturityAnswer,
+  MaturityQuestion,
+  UseCaseAnswer,
   MultiAnswer,
   MultiQuestion,
   ParticipantInfo,
@@ -8,6 +11,7 @@ import type {
   SurveyDefinition,
   Widget,
 } from './types.js';
+import { isVisible } from './validate.js';
 
 // ---------- Result types ----------
 
@@ -38,7 +42,26 @@ export type QuestionResult =
   | { type: 'numeric'; n: number; values: number[]; mean: number | null; median: number | null; sd: number | null }
   | { type: 'levels'; n: number; levels: LevelItem[]; mean: number | null }
   | { type: 'grid'; n: number; levels: string[]; rows: GridRowResult[] }
-  | { type: 'points'; n: number; budget: number; items: PointsItem[] };
+  | { type: 'points'; n: number; budget: number; items: PointsItem[] }
+  | { type: 'maturity'; n: number; na: number; now: LevelStats; target: LevelStats; gap: number | null }
+  | { type: 'usecase'; n: number; items: UseCaseItem[] };
+
+export interface LevelStats {
+  n: number;
+  mean: number | null;
+  sd: number | null;
+  /** counts per level, index 0 = level 1 */
+  counts: number[];
+}
+
+export interface UseCaseItem {
+  pid: string;
+  task: string;
+  hours: number | null;
+  data: string | null;
+  /** data sensitivity 1–5, null if unknown */
+  level: number | null;
+}
 
 export interface GridRowResult {
   id: string;
@@ -73,11 +96,48 @@ export interface MatrixResult {
   quadrants: [number, number, number, number];
 }
 
-export interface CompareStairsResult {
-  today: Extract<QuestionResult, { type: 'levels' }>;
-  target: Extract<QuestionResult, { type: 'levels' }>;
-  nPaired: number;
-  meanGap: number | null;
+export interface CobwebDim {
+  id: string;
+  label: string;
+  /** respondents with a rating (excl. cannot judge) */
+  n: number;
+  na: number;
+  now: number | null;
+  target: number | null;
+  nowSd: number | null;
+  /** mean of paired (target - now) */
+  gap: number | null;
+}
+
+export interface CobwebResult {
+  n: number;
+  dims: CobwebDim[];
+}
+
+export interface CobwebSplitResult {
+  groups: { label: string; n: number; cobweb: CobwebResult }[];
+}
+
+export interface HeroResult {
+  n: number;
+  count: number;
+  share: number;
+}
+
+export interface FteResult {
+  n: number;
+  sumHours: number;
+  meanHours: number | null;
+  fte: number;
+}
+
+export interface PilotsResult {
+  n: number;
+  yes: number;
+  byOption: { id: string; label: string; count: number }[];
+  byFunc: { label: string; yes: number; total: number }[];
+  /** participant ids of those willing to join (names are resolved client-side if allowed) */
+  yesPids: string[];
 }
 
 export interface SelfVsDepthResult {
@@ -168,6 +228,8 @@ export function wordCounts(texts: string[]): { text: string; count: number }[] {
 
 export function aggregateQuestion(survey: SurveyDefinition, q: Question, rows: ResultRow[]): QuestionResult {
   const vals = rows
+    // answers to conditional questions that are no longer visible do not count
+    .filter((r) => isVisible(q, r.answers))
     .map((r) => ({ pid: r.participant.id, v: r.answers[q.id] }))
     .filter((x): x is { pid: string; v: AnswerValue } => x.v !== undefined);
 
@@ -234,7 +296,7 @@ export function aggregateQuestion(survey: SurveyDefinition, q: Question, rows: R
       const levelTitles = (scale?.levels ?? []).map((l) => l.title);
       const answered = vals.filter((x) => isNumRecord(x.v)) as { pid: string; v: Record<string, number | null> }[];
       const resRows = q.rows.map((row) => {
-        const counts = new Array<number>(row.descriptions.length).fill(0);
+        const counts = new Array<number>(row.descriptions?.length ?? levelTitles.length).fill(0);
         const nums: number[] = [];
         let na = 0;
         for (const x of answered) {
@@ -249,6 +311,43 @@ export function aggregateQuestion(survey: SurveyDefinition, q: Question, rows: R
         return { id: row.id, label: row.label, n: nums.length, na, mean: mean(nums), sd: sd(nums), counts };
       });
       return { type: 'grid', n: answered.length, levels: levelTitles, rows: resRows };
+    }
+    case 'maturity': {
+      const answered = vals.filter((x) => typeof x.v === 'object' && x.v !== null && 'now' in x.v) as { pid: string; v: MaturityAnswer }[];
+      const levelsN = q.descriptions.length;
+      const stats = (xs: number[]): LevelStats => {
+        const counts = new Array<number>(levelsN).fill(0);
+        for (const x of xs) counts[x - 1] = (counts[x - 1] ?? 0) + 1;
+        return { n: xs.length, mean: mean(xs), sd: sd(xs), counts };
+      };
+      const nows = answered.map((x) => x.v.now).filter((v): v is number => typeof v === 'number');
+      const targets = answered.map((x) => x.v.target).filter((v): v is number => typeof v === 'number');
+      const gaps = answered
+        .filter((x) => typeof x.v.now === 'number' && typeof x.v.target === 'number')
+        .map((x) => (x.v.target as number) - (x.v.now as number));
+      return {
+        type: 'maturity',
+        n: answered.length,
+        na: answered.filter((x) => x.v.now === null).length,
+        now: stats(nows),
+        target: stats(targets),
+        gap: mean(gaps),
+      };
+    }
+    case 'usecase': {
+      const items: UseCaseItem[] = [];
+      for (const x of vals) {
+        const u = x.v as UseCaseAnswer;
+        if (typeof u !== 'object' || u === null || typeof u.task !== 'string' || !u.task.trim()) continue;
+        items.push({
+          pid: x.pid,
+          task: u.task.trim(),
+          hours: typeof u.hours === 'number' ? u.hours : null,
+          data: u.data ?? null,
+          level: q.dataOptions.find((o) => o.id === u.data)?.level ?? null,
+        });
+      }
+      return { type: 'usecase', n: items.length, items };
     }
     case 'points': {
       const answered = vals.filter((x) => isNumRecord(x.v)) as { pid: string; v: Record<string, number | null> }[];
@@ -348,24 +447,60 @@ export function aggregateMatrix(
   return { n, points, midX, midY, quadrants: [share(q[0]!), share(q[1]!), share(q[2]!), share(q[3]!)] };
 }
 
-export function aggregateCompareStairs(
-  survey: SurveyDefinition,
-  todayId: string,
-  targetId: string,
-  rows: ResultRow[],
-): CompareStairsResult {
-  const qToday = survey.questions.find((q) => q.id === todayId);
-  const qTarget = survey.questions.find((q) => q.id === targetId);
-  if (qToday?.type !== 'stairs' || qTarget?.type !== 'stairs') throw new Error('compare_stairs needs stairs questions');
-  const today = aggregateQuestion(survey, qToday, rows) as Extract<QuestionResult, { type: 'levels' }>;
-  const target = aggregateQuestion(survey, qTarget, rows) as Extract<QuestionResult, { type: 'levels' }>;
-  const gaps: number[] = [];
-  for (const r of rows) {
-    const a = r.answers[todayId];
-    const b = r.answers[targetId];
-    if (typeof a === 'number' && typeof b === 'number') gaps.push(b - a);
+export function aggregateCobweb(survey: SurveyDefinition, qids: string[], rows: ResultRow[]): CobwebResult {
+  const dims: CobwebDim[] = [];
+  for (const id of qids) {
+    const q = survey.questions.find((x) => x.id === id);
+    if (q?.type !== 'maturity') continue;
+    const r = aggregateQuestion(survey, q, rows);
+    if (r.type !== 'maturity') continue;
+    dims.push({
+      id,
+      label: (q as MaturityQuestion).dimension,
+      n: r.now.n,
+      na: r.na,
+      now: r.now.mean,
+      target: r.target.mean,
+      nowSd: r.now.sd,
+      gap: r.gap,
+    });
   }
-  return { today, target, nPaired: gaps.length, meanGap: mean(gaps) };
+  const answered = rows.filter((r) => qids.some((id) => r.answers[id] !== undefined)).length;
+  return { n: answered, dims };
+}
+
+export function aggregateHero(q: string, options: string[], rows: ResultRow[]): HeroResult {
+  const answered = rows.filter((r) => typeof r.answers[q] === 'string');
+  const count = answered.filter((r) => options.includes(r.answers[q] as string)).length;
+  return { n: answered.length, count, share: answered.length ? count / answered.length : 0 };
+}
+
+export function aggregateFte(q: string, hoursPerFte: number, rows: ResultRow[]): FteResult {
+  const hours = rows.map((r) => r.answers[q]).filter((v): v is number => typeof v === 'number');
+  const sumHours = hours.reduce((a, b) => a + b, 0);
+  return { n: hours.length, sumHours, meanHours: mean(hours), fte: sumHours / hoursPerFte };
+}
+
+export function aggregatePilots(survey: SurveyDefinition, qid: string, yes: string[], rows: ResultRow[]): PilotsResult {
+  const q = survey.questions.find((x) => x.id === qid);
+  const answered = rows.filter((r) => typeof r.answers[qid] === 'string');
+  const isYes = (r: ResultRow) => yes.includes(r.answers[qid] as string);
+  const funcs = [...new Set(answered.map((r) => r.participant.func || '—'))].sort((a, b) => a.localeCompare(b, 'de'));
+  return {
+    n: answered.length,
+    yes: answered.filter(isYes).length,
+    byOption:
+      q?.type === 'single'
+        ? q.options.map((o) => ({ id: o.id, label: o.label, count: answered.filter((r) => r.answers[qid] === o.id).length }))
+        : [],
+    byFunc: funcs
+      .map((f) => {
+        const inF = answered.filter((r) => (r.participant.func || '—') === f);
+        return { label: f, yes: inF.filter(isYes).length, total: inF.length };
+      })
+      .sort((a, b) => b.yes - a.yes),
+    yesPids: answered.filter(isYes).map((r) => r.participant.id),
+  };
 }
 
 export function aggregateParticipation(rows: ResultRow[], startedIds: Set<string>): ParticipationResult {
@@ -393,21 +528,35 @@ export interface SurveyResults {
   questions: Record<string, QuestionResult>;
   depth: Record<string, Extract<QuestionResult, { type: 'levels' }>>;
   /** Derived analyses used by deck widgets, keyed by widgetKey() */
-  derived: Record<string, CompareStairsResult | MatrixResult | SelfVsDepthResult>;
+  derived: Record<string, DerivedResult>;
 }
+
+export type DerivedResult = MatrixResult | SelfVsDepthResult | CobwebResult | CobwebSplitResult | HeroResult | FteResult | PilotsResult;
 
 export function widgetKey(w: Widget): string {
   switch (w.kind) {
-    case 'compare_stairs':
-      return `compare:${w.today}:${w.target}`;
     case 'matrix':
       return `matrix:${w.x}:${w.y}`;
     case 'self_vs_depth':
       return `self:${w.self}:${w.depth}`;
+    case 'cobweb':
+    case 'gaps':
+    case 'blindspots':
+      return `cobweb:${w.qs.join(',')}`;
+    case 'cobweb_split':
+      return `split:${w.qs.join(',')}`;
+    case 'hero':
+      return `hero:${w.q}:${w.options.join(',')}`;
+    case 'hero_fte':
+      return `fte:${w.q}:${w.hoursPerFte}`;
+    case 'pilots':
+      return `pilots:${w.q}`;
     default:
       return '';
   }
 }
+
+export const LEADERSHIP_LABELS = ['Führung (GF/AL)', 'Team'] as const;
 
 export function aggregateAll(survey: SurveyDefinition, allRows: ResultRow[], filter: ResultFilter): SurveyResults {
   const inFilter = applyFilter(allRows, filter);
@@ -421,11 +570,44 @@ export function aggregateAll(survey: SurveyDefinition, allRows: ResultRow[], fil
   }
   const derived: SurveyResults['derived'] = {};
   for (const w of survey.deck.flatMap((sl) => sl.widgets)) {
-    if (w.kind === 'compare_stairs') derived[widgetKey(w)] = aggregateCompareStairs(survey, w.today, w.target, rows);
-    if (w.kind === 'matrix') derived[widgetKey(w)] = aggregateMatrix(survey, w.x, w.y, rows);
-    if (w.kind === 'self_vs_depth') {
-      const dq = survey.questions.find((q) => q.id === w.depth);
-      if (dq?.type === 'multi') derived[widgetKey(w)] = aggregateSelfVsDepth(w.self, dq, rows);
+    const key = widgetKey(w);
+    if (!key || derived[key]) continue;
+    switch (w.kind) {
+      case 'matrix':
+        derived[key] = aggregateMatrix(survey, w.x, w.y, rows);
+        break;
+      case 'self_vs_depth': {
+        const dq = survey.questions.find((q) => q.id === w.depth);
+        if (dq?.type === 'multi') derived[key] = aggregateSelfVsDepth(w.self, dq, rows);
+        break;
+      }
+      case 'cobweb':
+      case 'gaps':
+      case 'blindspots':
+        derived[key] = aggregateCobweb(survey, w.qs, rows);
+        break;
+      case 'cobweb_split': {
+        const leaders = rows.filter((r) => r.participant.leader);
+        const team = rows.filter((r) => !r.participant.leader);
+        const groups = [
+          { label: LEADERSHIP_LABELS[0], rows: leaders },
+          { label: LEADERSHIP_LABELS[1], rows: team },
+        ].map((g) => {
+          const cobweb = aggregateCobweb(survey, w.qs, g.rows);
+          return { label: g.label, n: cobweb.n, cobweb };
+        });
+        derived[key] = { groups };
+        break;
+      }
+      case 'hero':
+        derived[key] = aggregateHero(w.q, w.options, rows);
+        break;
+      case 'hero_fte':
+        derived[key] = aggregateFte(w.q, w.hoursPerFte, rows);
+        break;
+      case 'pilots':
+        derived[key] = aggregatePilots(survey, w.q, w.yes, rows);
+        break;
     }
   }
   return {

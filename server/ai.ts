@@ -76,7 +76,14 @@ export async function summarizeClusters(
   for (const qid of target.questions) {
     for (const r of rows) {
       const v = r.answers[qid];
-      const texts = typeof v === 'string' ? [v] : Array.isArray(v) ? v : [];
+      const texts =
+        typeof v === 'string'
+          ? [v]
+          : Array.isArray(v)
+            ? v
+            : v && typeof v === 'object' && 'task' in v && typeof v.task === 'string'
+              ? [v.task]
+              : [];
       for (const t of texts.map((x) => x.trim()).filter(Boolean)) {
         answers.push({ id: `A${answers.length + 1}`, pid: r.participant.id, text: pseudonymize(t, allNames) });
       }
@@ -102,11 +109,13 @@ Aufgabe:
   const themes = out.themes
     .map((t) => {
       const ids = [...new Set(t.answerIds.filter((id) => byId.has(id)))];
+      const pids = [...new Set(ids.map((id) => byId.get(id)!.pid))];
       return {
         title: t.title,
         description: t.description,
         // Count respondents ourselves instead of trusting a model-provided number
-        count: new Set(ids.map((id) => byId.get(id)!.pid)).size,
+        count: pids.length,
+        pids,
         quotes: t.quotes.map((q) => ({ text: q.text, pid: byId.get(q.answerId)?.pid ?? null })),
       };
     })
@@ -144,6 +153,13 @@ export async function summarizeSynthesis(
           return `${head}: ${r.items.map((i) => `${i.label} ${Math.round(i.share * 100)}%`).join('; ')}`;
         case 'words':
           return `${head}: ${r.words.slice(0, 15).map((w) => `${w.text} (${w.count})`).join(', ')}`;
+        case 'maturity':
+          return `${head}: heute Ø ${r.now.mean?.toFixed(2) ?? '–'}, Ziel Ø ${r.target.mean?.toFixed(2) ?? '–'}, kann ich nicht beurteilen: ${r.na}`;
+        case 'usecase': {
+          const hours = r.items.map((i) => i.hours).filter((h): h is number => typeof h === 'number');
+          const sensitive = r.items.filter((i) => (i.level ?? 0) >= 4).length;
+          return `${head}: Summe ${hours.reduce((a, b) => a + b, 0)} Std./Woche für die Top-Aufgaben, davon ${sensitive} mit personen- oder patientenbezogenen Daten`;
+        }
         case 'texts':
           return '';
       }

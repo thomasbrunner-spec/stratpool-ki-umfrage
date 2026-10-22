@@ -342,6 +342,17 @@ adminRouter.delete('/participants/:pid', (req, res) => {
   res.json({ ok: true });
 });
 
+/** Removes all answers of one participant and resets the status (e.g. after test runs). */
+adminRouter.delete('/participants/:pid/answers', (req, res) => {
+  const part = participantOr404(req, res);
+  if (!part) return;
+  db.transaction(() => {
+    db.prepare('DELETE FROM answers WHERE participant_id = ?').run(part.id);
+    db.prepare('UPDATE participants SET completed_at = NULL WHERE id = ?').run(part.id);
+  })();
+  res.json({ ok: true });
+});
+
 adminRouter.post('/participants/:pid/token', (req, res) => {
   const part = participantOr404(req, res);
   if (!part) return;

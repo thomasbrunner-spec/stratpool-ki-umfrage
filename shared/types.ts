@@ -24,6 +24,8 @@ export interface ScaleLevel {
   description: string;
   /** Optional explanation shown to participants below the description */
   hint?: string;
+  /** Semantic colour for traffic-light scales */
+  tone?: 'good' | 'warn' | 'bad';
 }
 
 export interface Scale {
@@ -32,9 +34,16 @@ export interface Scale {
   brackets?: { from: number; to: number; label: string }[];
 }
 
+/** Question is only shown if question `q` has one of these options selected */
+export interface ShowIf {
+  q: string;
+  anyOf: string[];
+}
+
 interface QuestionBase {
   id: string;
   block: string;
+  showIf?: ShowIf;
   title: string;
   /** Alternative title for participants who do not attend the workshop */
   titleNonWorkshop?: string;
@@ -94,8 +103,8 @@ export interface StairsQuestion extends QuestionBase {
 export interface GridRow {
   id: string;
   label: string;
-  /** One description per scale level, same order as scale.levels */
-  descriptions: string[];
+  /** One description per scale level, same order as scale.levels (optional for traffic lights) */
+  descriptions?: string[];
 }
 
 export interface GridQuestion extends QuestionBase {
@@ -103,6 +112,37 @@ export interface GridQuestion extends QuestionBase {
   scale: string;
   rows: GridRow[];
   naLabel: string;
+  viz: 'profile' | 'ampel';
+}
+
+/** One maturity dimension, rated for today and for the target in three years */
+export interface MaturityQuestion extends QuestionBase {
+  type: 'maturity';
+  scale: string;
+  dimension: string;
+  anchor: string;
+  /** One description per scale level */
+  descriptions: string[];
+  naLabel: string;
+}
+
+export interface DataOption {
+  id: string;
+  label: string;
+  /** Sensitivity 1 (public) … 5 (patient data); null = unknown */
+  level: number | null;
+}
+
+/** Use-case profile: task, weekly hours, most sensitive data involved */
+export interface UseCaseQuestion extends QuestionBase {
+  type: 'usecase';
+  maxLength: number;
+  placeholder?: string;
+  hoursLabel: string;
+  hoursMax: number;
+  hoursStep: number;
+  dataLabel: string;
+  dataOptions: DataOption[];
 }
 
 export interface PointsQuestion extends QuestionBase {
@@ -120,6 +160,8 @@ export type Question =
   | SliderQuestion
   | StairsQuestion
   | GridQuestion
+  | MaturityQuestion
+  | UseCaseQuestion
   | PointsQuestion;
 
 export type QuestionType = Question['type'];
@@ -127,22 +169,36 @@ export type QuestionType = Question['type'];
 export interface Block {
   id: string;
   title: string;
+  /** Shown above the first question of the block */
+  intro?: string;
 }
 
 export type Widget =
   | { kind: 'question'; q: string }
-  | { kind: 'compare_stairs'; today: string; target: string }
   | { kind: 'depth'; q: string }
   | { kind: 'self_vs_depth'; self: string; depth: string }
   | { kind: 'matrix'; x: string; y: string; xLabel: string; yLabel: string; quadrants: [string, string, string, string] }
   | { kind: 'ai'; key: string }
-  | { kind: 'participation' };
+  | { kind: 'participation' }
+  /** Radar over maturity questions; 'build' reveals the target layer on the next key press */
+  | { kind: 'cobweb'; qs: string[]; show: 'now' | 'both' | 'build' }
+  | { kind: 'cobweb_split'; qs: string[] }
+  | { kind: 'gaps'; qs: string[] }
+  | { kind: 'blindspots'; qs: string[] }
+  /** Big number: share of respondents who chose any of `options` */
+  | { kind: 'hero'; q: string; options: string[]; text: string }
+  /** Big number: weekly hours summed up and converted to full-time equivalents */
+  | { kind: 'hero_fte'; q: string; hoursPerFte: number }
+  | { kind: 'usecase_map'; q: string; ai: string }
+  | { kind: 'pilots'; q: string; yes: string[] };
 
 export interface DeckSlide {
   id: string;
   eyebrow: string;
   title: string;
   widgets: Widget[];
+  /** Number of build steps (default 1) */
+  steps?: number;
 }
 
 /** AI summary targets: free-text questions or the overall synthesis */
@@ -175,11 +231,25 @@ export interface MultiAnswer {
   other?: string;
 }
 
+export interface MaturityAnswer {
+  /** null = cannot judge */
+  now: number | null;
+  target?: number | null;
+}
+
+export interface UseCaseAnswer {
+  task: string;
+  hours: number | null;
+  data: string | null;
+}
+
 export type AnswerValue =
   | string // short_text, long_text, single
   | string[] // text_list
   | number // slider, stairs
   | MultiAnswer // multi
+  | MaturityAnswer // maturity
+  | UseCaseAnswer // usecase
   | Record<string, number | null> // grid (null = cannot judge), points
   ;
 
@@ -191,6 +261,8 @@ export interface ParticipantInfo {
   company: string;
   func: string;
   workshop: boolean;
+  /** Management (GF) or head of department (AL) – used for the leadership vs. team comparison */
+  leader?: boolean;
 }
 
 export interface ResultFilter {

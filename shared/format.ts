@@ -1,4 +1,4 @@
-import type { AnswerValue, MultiAnswer, Question, SurveyDefinition } from './types.js';
+import type { AnswerValue, MaturityAnswer, MultiAnswer, Question, SurveyDefinition, UseCaseAnswer } from './types.js';
 
 /** Human-readable rendering of one answer (participant summary, admin detail view). */
 export function formatAnswer(survey: SurveyDefinition, q: Question, v: AnswerValue | undefined): string {
@@ -33,8 +33,21 @@ export function formatAnswer(survey: SurveyDefinition, q: Question, v: AnswerVal
         .filter((r) => r.id in rec)
         .map((r) => {
           const n = rec[r.id];
-          return `${r.label}: ${n === null || n === undefined ? q.naLabel : `${n} ${levels[n - 1]?.title ?? ''}`}`;
+          return `${r.label}: ${n === null || n === undefined ? q.naLabel : q.viz === 'ampel' ? (levels[n - 1]?.title ?? '') : `${n} ${levels[n - 1]?.title ?? ''}`}`;
         })
+        .join('\n');
+    }
+    case 'maturity': {
+      const m = v as MaturityAnswer;
+      const levels = survey.scales[q.scale]?.levels ?? [];
+      const lvl = (n: number | null | undefined) => (typeof n === 'number' ? `${n} ${levels[n - 1]?.title ?? ''}` : '–');
+      return m.now === null ? q.naLabel : `heute ${lvl(m.now)} → Ziel ${lvl(m.target)}`;
+    }
+    case 'usecase': {
+      const u = v as UseCaseAnswer;
+      const data = q.dataOptions.find((o) => o.id === u.data)?.label;
+      return [u.task, typeof u.hours === 'number' ? `${String(u.hours).replace('.', ',')} Std./Woche` : null, data ? `Daten: ${data}` : null]
+        .filter(Boolean)
         .join('\n');
     }
     case 'points': {
