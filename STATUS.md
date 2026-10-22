@@ -41,6 +41,17 @@ Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, Abgleich mit Ver
 - Einladung durch die GF; Hinweis, dass die GF keine Einzelantworten sieht (Ehrlichkeit bei Schatten-KI)
 - Nach dem Workshop kurzes Ergebnis-PDF an alle Befragten (Rückkanal, Beteiligungsversprechen)
 
+## Reminder: Option „anonyme Befragung“ (noch NICHT umsetzen, erst nach Freigabe Thomas)
+Hintergrund: Nur das Namensfeld wegzulassen reicht nicht – Funktion + Gesellschaft identifiziert bei 17 Personen fast jeden eindeutig (bleibt personenbezogen). Echte Entlastung nur mit:
+1. Neuer Zugangsmodus `anonymous` (gemeinsamer Link + Passwort, keine persönlichen Token, kein Name in der DB)
+2. Registrierung fragt nur **grobe Kategorien** ab (z. B. Führung / Fachbereich; Gesellschaft grob oder gar nicht) – **Kategorien legt Thomas fest**
+3. Wiedereinstieg nur auf demselben Gerät (Cookie); Hinweis im Willkommenstext
+4. Pilot-Frage H0: optionales Namensfeld „Wenn Sie mitmachen möchten“ (freiwillig, ausdrücklich optional); Piloten-Folie zeigt nur diese freiwilligen Namen
+5. Willkommens-/Datenschutztext anpassen („Keine anonyme Befragung“ → anonym, inkl. Mindestgruppengröße)
+6. Admin: Rücklauf nur als Gesamtzahl, Teilnehmerliste/„Antworten löschen“ je Person/Erinnerung je Person entfallen in diesem Modus; Führung vs. Team über die grobe Kategorie
+7. Tests + Seed anpassen; Aufwand ca. 1–2 Std.
+Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schatten-KI. Nachteil: kein Rücklauf je Person, keine Löschung auf Einzelanfrage, Doppelteilnahme möglich.
+
 ## Fragebogen-Vorschläge, warten auf Freigabe
 - Optional: bestehende KI-Projekte/Assistenten im eigenen Bereich
 
