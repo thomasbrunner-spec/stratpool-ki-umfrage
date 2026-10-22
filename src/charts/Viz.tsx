@@ -766,7 +766,7 @@ export function UseCaseMap({ q, items, clusters }: { q: UseCaseQuestion; items: 
       <rect x={padL} y={padT} width={midX - padL} height={midY - padT} fill="rgba(253,154,0,0.08)" />
       <line x1={midX} x2={midX} y1={padT} y2={H - padB} stroke={C.line} />
       <line x1={padL} x2={W - 20} y1={midY} y2={midY} stroke={C.line} />
-      {qLabel(padL + 12, padT + 22, 'Quick Wins', true)}
+      {qLabel(padL + 12, padT + 22, 'Quick-Win-Kandidaten', true)}
       {qLabel(W - 32, padT + 20, 'Hoher Hebel, hohe Anforderungen', false, 'end')}
       {qLabel(padL + 12, H - padB - 12, 'Einfach, kleiner Hebel')}
       {qLabel(W - 32, H - padB - 12, 'Später prüfen', false, 'end')}

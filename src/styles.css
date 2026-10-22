@@ -250,6 +250,7 @@ table.tbl tr:hover td { background: rgba(255,255,255,.02); }
 .cluster .h { display: flex; gap: 10px; align-items: baseline; }
 .cluster .h .cnt { font-family: var(--font-head); color: var(--orange); font-size: 22px; }
 .cluster .h .t { font-family: var(--font-head); font-size: 16px; }
+.cluster .h .novel { margin-left: auto; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--navy); background: var(--orange); border-radius: 999px; padding: 2px 8px; }
 .cluster p { margin: 4px 0 6px; font-size: 13.5px; color: var(--ink-2); }
 .cluster q { display: block; font-size: 13px; color: var(--ink-3); font-style: italic; margin-top: 4px; }
 .wall { display: grid; gap: 8px; }

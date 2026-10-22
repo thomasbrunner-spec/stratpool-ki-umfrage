@@ -20,6 +20,7 @@ const ClusterOutput = z.object({
       description: z.string(),
       answerIds: z.array(z.string()),
       quotes: z.array(z.object({ answerId: z.string(), text: z.string() })),
+      outsideHypotheses: z.boolean(),
     }),
   ),
   keyStatements: z.array(z.string()),
@@ -102,7 +103,12 @@ ${answers.map((a) => `${a.id}: ${a.text.replace(/\s+/g, ' ')}`).join('\n')}
 Aufgabe:
 1. Bilde 3 bis 7 Themencluster. Ordne jede Antwort-ID allen Clustern zu, zu denen sie inhaltlich gehört (answerIds). Sortiere die Cluster nach Anzahl der Antworten, absteigend.
 2. Gib je Cluster einen kurzen Titel (max. 6 Wörter), eine Beschreibung in 1–2 Sätzen und 1–2 prägnante wörtliche Zitate mit ihrer Antwort-ID.
-3. Formuliere 2–4 Kernaussagen über alle Antworten hinweg.`;
+3. Formuliere 2–4 Kernaussagen über alle Antworten hinweg.
+4. ${
+    target.hypotheses?.length
+      ? `Setze outsideHypotheses auf true, wenn ein Cluster durch keine dieser Ausgangshypothesen abgedeckt ist, sonst false:\n${target.hypotheses.map((h) => `- ${h}`).join('\n')}`
+      : 'Setze outsideHypotheses immer auf false.'
+  }`;
 
   const out = await aiDeps.call(ClusterOutput, prompt);
   const byId = new Map(answers.map((a) => [a.id, a]));
@@ -116,6 +122,7 @@ Aufgabe:
         // Count respondents ourselves instead of trusting a model-provided number
         count: pids.length,
         pids,
+        ...(target.hypotheses?.length ? { novel: t.outsideHypotheses } : {}),
         quotes: t.quotes.map((q) => ({ text: q.text, pid: byId.get(q.answerId)?.pid ?? null })),
       };
     })

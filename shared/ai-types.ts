@@ -8,6 +8,8 @@ export interface ClusterSummary {
     quotes: { text: string; pid: string | null }[];
     /** respondents assigned to the theme (used e.g. for the use-case map) */
     pids?: string[];
+    /** theme lies outside the target's starting hypotheses */
+    novel?: boolean;
   }[];
   keyStatements: string[];
 }

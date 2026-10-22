@@ -171,6 +171,12 @@ function ClusterEditor({ v, set }: { v: ClusterSummary; set: (v: AiSummary) => v
           <div className="row">
             <input className="input" style={{ flex: 1 }} value={t.title} onChange={(e) => upd(i, { title: e.target.value })} aria-label="Thema" />
             <input className="input" style={{ width: 90 }} type="number" min={0} value={t.count} onChange={(e) => upd(i, { count: Number(e.target.value) })} aria-label="Anzahl" />
+            {t.novel !== undefined && (
+              <label className="check small" title="Thema liegt außerhalb der Ausgangshypothesen aus dem Angebot">
+                <input type="checkbox" checked={t.novel} onChange={(e) => upd(i, { novel: e.target.checked })} />
+                neu
+              </label>
+            )}
             <button className="btn small danger" onClick={() => set({ ...v, themes: v.themes.filter((_, k) => k !== i) })}>
               Entfernen
             </button>

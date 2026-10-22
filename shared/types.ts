@@ -208,6 +208,8 @@ export interface AiTarget {
   /** Questions whose texts are summarised; empty for the synthesis */
   questions: string[];
   mode: 'clusters' | 'synthesis';
+  /** Starting hypotheses (e.g. from the offer); themes outside them get flagged as new */
+  hypotheses?: string[];
 }
 
 export interface SurveyDefinition {

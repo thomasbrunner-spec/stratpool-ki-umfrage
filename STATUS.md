@@ -10,7 +10,7 @@
 4. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
 5. Danach: offene Entscheidungen unten klären → echte Teilnehmer importieren → Einladung
 
-Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, 53 Tests grün, CI grün, alle 21 Folien headless geprüft. Keine uncommitteten Änderungen.
+Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, Abgleich mit Vertrag/Angebot erledigt (siehe unten), 54 Tests grün, CI grün, alle 21 Folien headless geprüft. Keine uncommitteten Änderungen.
 
 ## Stand
 - [x] Briefing, Projekt-CLAUDE.md, Fragebogen-Entwurf v0.1 (aus Claude-Session übergeben)
@@ -24,12 +24,25 @@ Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, 53 Tests grün, 
 - [x] Admin: Projekte, Teilnehmende (CSV-Import, Links, Status, Einladungs-/Erinnerungstexte), Dashboard mit Filtern, Einzelansicht, Export XLSX/CSV/JSON, Löschen
 - [x] Präsentationsmodus (ERA-CI, 21 Folien, Tastatur, Übersicht, Vollbild, PDF-Druck, Folien ein/aus, Kommentar, Namen je Folie, Mindestgruppe)
 - [x] KI-Zusammenfassung Freitexte (Claude Opus 5.5, Namen vorher entfernt, editierbar) – **nur mit Mock getestet**, Live-Test steht aus
-- [x] Test mit Fake-Daten (`npm run seed:fake`), 53 Vitest-Tests grün, Docker-Image lokal gebaut und gestartet
+- [x] Test mit Fake-Daten (`npm run seed:fake`), 54 Vitest-Tests grün, Docker-Image lokal gebaut und gestartet
 - [ ] Review der Präsentation mit Thomas
 - [x] Deploy auf Coolify (2026-10-22), Health-Check ok – siehe DEPLOYMENT.md
 - [ ] Smoke-Test in Produktion: Admin-Login, Testprojekt, Teilnehmer-Durchlauf am Handy, KI-Zusammenfassung, Testprojekt löschen
 - [ ] Live-Test KI-Zusammenfassung mit echtem `ANTHROPIC_API_KEY` (Demo-Projekt)
 - [ ] Echte Teilnehmer importiert, Einladung verschickt
+
+## Vor dem Versand außerhalb der App klären (Abgleich mit Vertrag/Angebot, 2026-10-22)
+- **Datenschutz:** Vertragsanlage 2 ist die ERA-Vorlage für Kostenanalysen (Zweck „Kostenstrukturen“, Ziff. 2.3 „Kunde liefert pseudonymisiert“, 10 Jahre Aufbewahrung) – deckt eine namentliche Mitarbeiterbefragung mit Hosting bei Hostinger und Anthropic als Unterauftragnehmer nicht ab. Eigene Datenschutzinformation mit kurzer Löschfrist, AVV Hostinger/Anthropic, Rolle StratPool als Betreiber klären
+- **Betriebsrat:** Gibt es einen? Namentliche Mitarbeiterbefragung ggf. mitbestimmungspflichtig
+- **Teilnehmerkreis:** Angebot verspricht Befragung „der Belegschaft“/„unternehmensweit“; aktuell 17 Personen, davon 9 GF/AL. Entweder erweitern (Passwort-Link mit Selbstregistrierung) oder ehrlich als „Führungskreis und Schlüsselpersonen“ benennen
+- Ergebnisse der laufenden internen Ist-Aufnahme bei HumanTech anfordern (Doppelbefragung vermeiden)
+- Deutschkenntnisse der Person bei HT México klären (Fragebogen nur Deutsch)
+- Einladung durch die GF; Hinweis, dass die GF keine Einzelantworten sieht (Ehrlichkeit bei Schatten-KI)
+- Nach dem Workshop kurzes Ergebnis-PDF an alle Befragten (Rückkanal, Beteiligungsversprechen)
+
+## Fragebogen-Vorschläge, warten auf Freigabe
+- Neue Frage zu **AI Literacy/Schulung** (bisher erhalten? Bedarf? Format?) – Vertrag nennt AI Literacy nach EU AI Act ausdrücklich, Angebot verspricht Schulungsempfehlungen
+- Optional: bestehende KI-Projekte/Assistenten im eigenen Bereich
 
 ## Offene Entscheidungen (Thomas)
 - Workshop-Termin und Stichtag (Feldzeit ≥ 10 Werktage + Erinnerung) → im Projekt eintragen, erscheinen in Begrüßung/Abschluss

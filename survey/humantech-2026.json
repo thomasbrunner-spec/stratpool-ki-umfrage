@@ -844,7 +844,15 @@
       "questions": [
         "F2"
       ],
-      "mode": "clusters"
+      "mode": "clusters",
+      "hypotheses": [
+        "Clinical Affairs: Literaturrecherche, klinische Bewertung, Studien-Synthesen",
+        "Wissensmanagement im regulierten Umfeld (SOPs, Richtlinien)",
+        "Konformitätsdokumentation (MDR, ISO 13485)",
+        "Schulungs- und Qualifikationsnachweise, AI Literacy",
+        "Routinetätigkeiten in Verwaltung und abteilungsübergreifenden Prozessen",
+        "Vertrags- und Angebotsprüfung, Lieferanten- und Partnerkommunikation"
+      ]
     },
     {
       "key": "F3",
@@ -852,7 +860,15 @@
       "questions": [
         "F3"
       ],
-      "mode": "clusters"
+      "mode": "clusters",
+      "hypotheses": [
+        "Clinical Affairs: Literaturrecherche, klinische Bewertung, Studien-Synthesen",
+        "Wissensmanagement im regulierten Umfeld (SOPs, Richtlinien)",
+        "Konformitätsdokumentation (MDR, ISO 13485)",
+        "Schulungs- und Qualifikationsnachweise, AI Literacy",
+        "Routinetätigkeiten in Verwaltung und abteilungsübergreifenden Prozessen",
+        "Vertrags- und Angebotsprüfung, Lieferanten- und Partnerkommunikation"
+      ]
     },
     {
       "key": "H1",
@@ -1066,7 +1082,7 @@
     {
       "id": "s-usecases",
       "eyebrow": "Was zuerst?",
-      "title": "Use-Case-Landkarte: Wo liegen die Quick Wins?",
+      "title": "Use-Case-Landkarte: Kandidaten für Quick Wins",
       "widgets": [
         {
           "kind": "usecase_map",

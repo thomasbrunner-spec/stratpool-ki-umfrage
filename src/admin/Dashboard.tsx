@@ -210,8 +210,8 @@ export function WidgetViz({
       return f && f.n ? (
         <Hero
           value={`${num(f.sumHours, 0)} Std.`}
-          text={`pro Woche könnten die ${f.n} Befragten mit guter KI-Unterstützung gewinnen – das entspricht rund ${num(f.fte)} Vollzeitstellen.`}
-          foot={`Selbsteinschätzung, Ø ${num(f.meanHours)} Std. pro Person und Woche, ${w.hoursPerFte} Std. je Vollzeitstelle`}
+          text={`pro Woche könnten die ${f.n} Befragten mit guter KI-Unterstützung gewinnen – grob die Kapazität von rund ${num(f.fte)} Vollzeitstellen.`}
+          foot={`Summe von Selbsteinschätzungen, keine Messung – nur als Größenordnung lesen · Ø ${num(f.meanHours)} Std. pro Person und Woche, ${w.hoursPerFte} Std. je Vollzeitstelle`}
         />
       ) : (
         <p className="empty">Noch keine Antworten.</p>

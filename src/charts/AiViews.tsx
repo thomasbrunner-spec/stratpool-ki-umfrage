@@ -11,6 +11,7 @@ export function ClusterView({ s, maxThemes, compact }: { s: ClusterSummary; maxT
           <div className="h">
             <span className="cnt">{t.count}</span>
             <span className="t">{t.title}</span>
+            {t.novel && <span className="novel">neu</span>}
           </div>
           {!compact && <p>{t.description}</p>}
           {t.quotes.slice(0, compact ? 1 : 2).map((q, k) => (
