@@ -3,6 +3,15 @@
 > Wiedereinstiegspunkt für die nächste Session. Stand: **2026-10-22**
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
 
+## Nächste Session – hier weitermachen
+1. Thomas prüft die neu deployte v0.4 (Coolify Auto-Deploy nach Push `4583e71`): Teilnehmer-Durchlauf am Handy, Präsentation (21 Folien)
+2. Testpersonen in Produktion über „Antworten löschen“ zurücksetzen (alte v0.3-Antworten)
+3. KI-Zusammenfassung live testen: Admin → KI-Zusammenfassung → alle auswählen → „Ausgewählte erzeugen“ (braucht `ANTHROPIC_API_KEY` in Coolify)
+4. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
+5. Danach: offene Entscheidungen unten klären → echte Teilnehmer importieren → Einladung
+
+Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, 53 Tests grün, CI grün, alle 21 Folien headless geprüft. Keine uncommitteten Änderungen.
+
 ## Stand
 - [x] Briefing, Projekt-CLAUDE.md, Fragebogen-Entwurf v0.1 (aus Claude-Session übergeben)
 - [x] Fragebogen v0.2 mit Thomas abgestimmt (18 Screens, Quiz durch Nutzungstiefe-Frage ersetzt)
@@ -13,9 +22,9 @@
 - [x] Repo angelegt + Gerüst (Express 5/SQLite/React 19/Vite, TS strict, Dockerfile, CI)
 - [x] Teilnehmer-Flow (Einladungslink + Passwort/Selbstregistrierung, Profil, 1 Frage/Screen, Autosave, Zusammenfassung, Abschluss, Stichtag-Sperre)
 - [x] Admin: Projekte, Teilnehmende (CSV-Import, Links, Status, Einladungs-/Erinnerungstexte), Dashboard mit Filtern, Einzelansicht, Export XLSX/CSV/JSON, Löschen
-- [x] Präsentationsmodus (ERA-CI, 14 Folien, Tastatur, Übersicht, Vollbild, PDF-Druck, Folien ein/aus, Kommentar, Namen je Folie, Mindestgruppe)
+- [x] Präsentationsmodus (ERA-CI, 21 Folien, Tastatur, Übersicht, Vollbild, PDF-Druck, Folien ein/aus, Kommentar, Namen je Folie, Mindestgruppe)
 - [x] KI-Zusammenfassung Freitexte (Claude Opus 5.5, Namen vorher entfernt, editierbar) – **nur mit Mock getestet**, Live-Test steht aus
-- [x] Test mit Fake-Daten (`npm run seed:fake`), 42 Vitest-Tests grün, Docker-Image lokal gebaut und gestartet
+- [x] Test mit Fake-Daten (`npm run seed:fake`), 53 Vitest-Tests grün, Docker-Image lokal gebaut und gestartet
 - [ ] Review der Präsentation mit Thomas
 - [x] Deploy auf Coolify (2026-10-22), Health-Check ok – siehe DEPLOYMENT.md
 - [ ] Smoke-Test in Produktion: Admin-Login, Testprojekt, Teilnehmer-Durchlauf am Handy, KI-Zusammenfassung, Testprojekt löschen
@@ -39,10 +48,11 @@
 4. **Schriften** kommen per `@fontsource` vom eigenen Server (kein Google-Fonts-Aufruf, DSGVO).
 5. **Fragebogen-Änderungen** nur in `survey/*.json` und nur nach Freigabe; Fragen-IDs nicht umbenennen, solange Antworten existieren.
 6. Stichtag gilt bis 23:59 Uhr Europe/Berlin (Container-TZ gesetzt).
+7. `BRIEFING.md` und `docs/kontext/` sind gitignored (Namen, Vertragsdaten).
 8. **Bedingte Fragen** (`showIf`, z. B. Copilot-Score): Antworten auf wieder ausgeblendete Fragen zählen in der Auswertung nicht.
 9. **Führung vs. Team:** „Führung“ = Bereich Geschäftsführung oder internes Rollen-Kürzel beginnt mit GF/AL (CSV-Spalte `kuerzel_funktion`). Vergleich erst ab Mindestgruppengröße je Gruppe.
 10. **Wechsel v0.3 → v0.4:** Antworten auf entfallene Fragen (B1, E1, D-Raster, G3, alte F2) bleiben in der DB, werden aber nirgends mehr ausgewertet. Testpersonen im Admin über „Antworten löschen“ zurücksetzen.
-7. `BRIEFING.md` und `docs/kontext/` sind gitignored (Namen, Vertragsdaten).
+11. **Slider:** Antwort wird auch beim Tippen auf die Startposition gespeichert (`onPointerUp`) – nicht entfernen, sonst bleibt „Weiter“ gesperrt.
 
 ## Lokal starten
 ```bash
