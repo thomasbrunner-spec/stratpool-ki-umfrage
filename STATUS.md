@@ -4,11 +4,14 @@
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
 
 ## Nächste Session – hier weitermachen
-1. Thomas prüft die neu deployte v0.4 (Coolify Auto-Deploy nach Push `4583e71`): Teilnehmer-Durchlauf am Handy, Präsentation (22 Folien)
-2. Testpersonen in Produktion über „Antworten löschen“ zurücksetzen (alte v0.3-Antworten)
-3. KI-Zusammenfassung live testen: Admin → KI-Zusammenfassung → alle auswählen → „Ausgewählte erzeugen“ (braucht `ANTHROPIC_API_KEY` in Coolify)
-4. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
-5. Danach: offene Entscheidungen unten klären → echte Teilnehmer importieren → Einladung
+1. Thomas prüft die neu deployte **v0.5** (Coolify Auto-Deploy, letzter Code-Commit `1fa4467`): Teilnehmer-Durchlauf am Handy, Präsentation (22 Folien, neu: „Befähigung & Schulungsbedarf“, „neu“-Kennzeichen bei KI-Clustern)
+2. Testpersonen in Produktion über „Antworten löschen“ zurücksetzen (alte v0.3/v0.4-Antworten, C4/C5 fehlen sonst)
+3. KI-Zusammenfassung live testen: Admin → KI-Zusammenfassung → alle auswählen → „Ausgewählte erzeugen“ (braucht `ANTHROPIC_API_KEY` in Coolify); dabei prüfen, ob das „neu“-Kennzeichen (außerhalb Angebotshypothesen) plausibel gesetzt wird
+4. Ergebnis der externen Klärung abwarten (Datenschutz/Betriebsrat/Teilnehmerkreis, siehe unten) → danach entscheiden, ob der **Anonym-Modus** gebaut wird (Reminder unten; Thomas muss grobe Kategorien festlegen)
+5. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
+6. Danach: offene Entscheidungen klären → echte Teilnehmer importieren → Einladung
+
+Qualitätseinschätzung (2026-10-22): 8/10 unter der Bedingung, dass Datenschutz geklärt ist; Hebel: Teilnehmerkreis erweitern (+0,5), Live-/Smoke-Test bestanden.
 
 Letzter Arbeitsstand (2026-10-22): v0.5 vollständig umgesetzt (inkl. AI Literacy C4/C5, am Handy geprüft), Abgleich mit Vertrag/Angebot erledigt (siehe unten), 54 Tests grün, alle 22 Folien headless geprüft. Anonym-Modus nur als Reminder notiert, nicht gebaut. Keine uncommitteten Änderungen.
 
