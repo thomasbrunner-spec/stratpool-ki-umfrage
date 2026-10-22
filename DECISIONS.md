@@ -27,3 +27,15 @@ erst ab Mindestgruppengröße (Default 3); Projektlöschung entfernt alle Daten 
 **Status:** umgesetzt (2026-10-22)
 **Entscheidung:** Beides pro Projekt umschaltbar. Beim Passwort-Weg werden nur selbst registrierte Personen über Name + Gesellschaft wiedererkannt,
 nie eingeladene – sonst könnte das gemeinsame Passwort fremde Antworten öffnen.
+
+## ADR-018: Koerting-Reifegrad (Ist/Ziel) als Messinstrument, AI-Native nur als Zielbild
+**Status:** akzeptiert (2026-10-22, Thomas)
+**Kontext:** Die AI-Native-Stufen schließen sich in der Praxis nicht aus (Copilot freigegeben, parallel Schatten-KI und KI-Inseln); eine Einzelwahl „heute“
+erzwingt künstliche Einigkeit und liefert keinen Handlungsauftrag.
+**Entscheidung:** Reifegrad je Koerting-Dimension heute und in drei Jahren (Cobweb, Lücken, Führung vs. Team, blinde Flecken). AI-Native nur als Frage
+nach dem Zielbild des Betriebsmodells in drei Jahren.
+
+## ADR-019: Keine Namen bei KI-Zitaten
+**Status:** akzeptiert (2026-10-22, Thomas)
+**Entscheidung:** Zitate aus KI-Zusammenfassungen erscheinen in Admin und Präsentation immer ohne Namen. Der Namens-Schalter wirkt nur noch auf die
+Fragenwand und die Pilot-Bereitschaft.

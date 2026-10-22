@@ -1,152 +1,104 @@
-# Fragebogen-Entwurf v0.3 – HumanTech Spine (Stand 22.10.2026)
+# Fragebogen v0.4 – HumanTech Spine (Stand 22.10.2026)
 
-> **Status: v0.2 freigegeben (22.10.2026); v0.3 = Änderungen nach Test durch Thomas:** Zeitgewinn bis 20 Std., Produktion als Bereich und als Ansatzpunkt in F1.
-> Ansprache „Sie“. Ziel: ca. 10 Min. · 18 Frage-Screens · Pflicht = (P), optional = (O)
-> **🆕** = neu formuliert/zusammengelegt gegenüber v0.1 – Text bitte besonders prüfen.
+> **Status: freigegeben von Thomas (22.10.2026), umgesetzt in `survey/humantech-2026.json`.** Ältere Stände: `FRAGEBOGEN-ENTWURF-v0.1.md`, `-v0.3.md`.
+> **Noch zu prüfen:** Erläuterungen je AI-Native-Stufe (Feld `hint`, von Claude formuliert) – siehe JSON.
+> Leitidee: Jede Frage zahlt auf eine Workshop-Entscheidung ein oder erzeugt ein „Aha“. Was nur beschreibt, fliegt raus.
+> Ziel-Dauer: ca. 12 Min. · 25 Screens (davon 7 Reifegrad-Screens à ~20 Sek.) · 🆕 = neu, ✏️ = geändert
 
-## Begrüßung (Screen 0)
+## Die drei Fragen, die der Workshop beantworten muss
 
-**KI bei HumanTech – Ihre Sicht zählt.**
-Am [Datum] erarbeiten wir gemeinsam im Workshop, wo KI bei HumanTech Spine den größten Nutzen stiftet. Ihre Antworten bilden die Grundlage für die Agenda. Die Umfrage dauert ca. 10 Minuten. Sie können jederzeit unterbrechen und später weitermachen. Es gibt keine falschen Antworten, eine ehrliche Einschätzung hilft uns am meisten.
-*Hinweis: Die Antworten werden mit Ihrem Namen gespeichert und nur von den ERA-Moderatoren ausgewertet. Im Workshop zeigen wir zusammengefasste Ergebnisse.* → [Datenschutzinfo]
+| Workshop-Frage | Wird beantwortet durch | Leitvisual |
+|---|---|---|
+| **Wo stehen wir – und wo ist die Lücke?** | Reifegrad Ist/Ziel je Dimension (Koerting) | Cobweb Ist vs. Ziel, Lücken-Ranking, Führung vs. Team |
+| **Was packen wir zuerst an?** | 10 Punkte, Use-Case-Steckbrief (Zeit + Datenart), Zeitpotenzial | Use-Case-Landkarte (Quick Wins), FTE-Hochrechnung |
+| **Unter welchen Regeln und mit wem?** | KI-Ampel, Hürden, Pilot-Bereitschaft | Ampel-Heatmap, Piloten-Landkarte |
 
-Anmeldung/Bestätigung: Name · Gesellschaft (Dropdown) · Funktion / Bereich (Dropdown: Geschäftsführung, Clinical Affairs, Regulatory Affairs, Qualitätsmanagement, F&E, Produktion, Produktmanagement, Vertrieb/ID, Marketing, Finance, Legal & HR, Projektmanagement, Sonstiges + Freitext)
+## Fragen
 
----
+### A – Einstieg
+1. **A1** Ein Wort: Was verbinden Sie mit KI bei der Arbeit? → Wortwolke
 
-## Block A – Einstieg
+### B – Nutzung heute
+2. **B2** Welche KI-Werkzeuge nutzen Sie beruflich? (wie v0.3)
+3. 🆕 **B2a** *(nur wenn Copilot gewählt)* **Wie hilfreich ist Microsoft Copilot in Ihrem Arbeitsalltag?** Slider 0–10 (gar nicht … unverzichtbar) → „Copilot-Score“ als Gauge. *Deckt den Auftragspunkt „Sichtung Copilot-Einsatz“ ab, den v0.3 nur über die Tool-Liste streift.*
+4. **B3** Private KI-Zugänge (Schatten-KI) (wie v0.3) → Hero-Zahl
+- ✂️ **B1 Häufigkeit entfällt** – die Nutzungstiefe (C2) sagt mehr.
 
-**1 · A1 (P) Ein Wort: Was verbinden Sie mit KI bei der Arbeit?**
-Kurztext (1–2 Wörter) → Wortwolke
+### C – Kenntnisse & Haltung (wie v0.3)
+5. **C1** Selbsteinschätzung (Slider)
+6. **C2** Was davon schon selbst gemacht? (Nutzungstiefe)
+7. **C3** Chance für den eigenen Bereich (Slider)
 
-## Block B – Nutzung heute
+### D – Reifegrad Ist & Ziel (Koerting, ausgebaut) ✏️
+8. Intro: „Jetzt geht es um HumanTech als Ganzes. Für sieben Bereiche: Wo stehen wir heute – und wo sollten wir in drei Jahren stehen? Bauchgefühl genügt.“
+9.–15. **Ein Screen je Dimension.** Oben ein konkreter Anker für HumanTech, darunter die fünf Original-Stufentexte als Karten. Zwei Auswahlen: **Heute** (blau) und **In 3 Jahren** (orange), dazu „kann ich nicht beurteilen“.
 
-**2 · B1 (P) Wie oft nutzen Sie KI-Werkzeuge für Ihre Arbeit?**
-Single: nie · seltener als monatlich · mehrmals im Monat · wöchentlich · täglich · mehrmals täglich → Balken
-
-**3 · B2 (P) Welche KI-Werkzeuge nutzen Sie beruflich?**
-Multi: Microsoft Copilot (in Word/Outlook/Teams) · Copilot Chat · ChatGPT · Claude · Google Gemini · Perplexity · DeepL · KI in Fachsoftware/ERP · Bild-/Videogeneratoren · keine · Sonstige (Freitext) → Balken sortiert
-
-**4 · B3 (P) Nutzen Sie für berufliche Aufgaben auch KI-Zugänge, die nicht vom Unternehmen bereitgestellt sind (z. B. private Accounts)?**
-Single: nein · gelegentlich · regelmäßig · keine Angabe → Balken (Schatten-KI-Quote)
-
-## Block C – Kenntnisse & Haltung
-
-**5 · C1 (P) Wie gut kennen Sie sich mit KI aus – ganz ehrlich?**
-Slider 0–100 (Gar nicht … Profi) → Dot-Plot + Mittelwert; zugleich x-Achse der Matrix
-*Steht bewusst vor C2, damit die Liste die Selbsteinschätzung nicht beeinflusst.*
-
-**6 · C2 (P) 🆕 Was davon haben Sie mit KI schon selbst gemacht?**
-Multi, gruppiert nach Nutzungstiefe (Gruppenüberschriften dezent sichtbar):
-
-| Stufe | Option |
+| Dimension | 🆕 Anker-Hinweis (Text-Vorschlag) |
 |---|---|
-| 1 Anwenden | Texte oder E-Mails formulieren bzw. überarbeiten lassen |
-| 1 Anwenden | Übersetzen lassen |
-| 1 Anwenden | Fragen stellen, Wissen abfragen (statt Suchmaschine) |
-| 2 Mit eigenen Inhalten arbeiten | Dokumente, Protokolle oder Daten hochladen und zusammenfassen oder auswerten lassen |
-| 2 Mit eigenen Inhalten arbeiten | Präsentationen, Tabellen oder Grafiken erstellen lassen |
-| 3 Gezielt steuern | Prompts gezielt aufbauen (Rolle, Kontext, Beispiele) und als Vorlage wiederverwenden |
-| 3 Gezielt steuern | Eigene Assistenten einrichten (z. B. Copilot-Agent, Custom GPT, Projekt mit eigenen Dokumenten) |
-| 4 Selbst bauen | Abläufe mit KI automatisieren (z. B. Power Automate, Make, n8n) |
-| 4 Selbst bauen | Eigene Tools oder Apps mit KI entwickeln |
-| – | Noch nichts davon (exklusiv) · Sonstiges (Freitext) |
+| Geschäftsmodell & Strategie | Gibt es Ziele und Budget für KI? Ist KI Teil der Unternehmensstrategie? |
+| Organisation & Prozesse | Gibt es Verantwortliche und einen Ablauf, um neue KI-Anwendungen zu prüfen und freizugeben? |
+| Menschen & Kultur | Schulungen, AI-Literacy-Nachweise nach EU AI Act, Offenheit im Team |
+| Technologie & Daten | Copilot/M365, Zugriff auf QM-Dokumente und Daten, Schnittstellen zu ERP und Ablagen |
+| Prozesse & Kunden | KI in kundennahen Abläufen: Angebote, Anfragen von Kliniken und Chirurgen, Reklamationen |
+| Recht & Ethik | KI-Richtlinie, Verantwortung für KI-Ergebnisse, Kennzeichnung |
+| Datenschutz & Compliance | DSGVO, Validierung von KI-Software im QMS (ISO 13485, 4.1.6), MDR-Anforderungen |
 
-→ Balken sortiert (je Tätigkeit) · Treppe „höchste erreichte Stufe“ je Person (Nutzungstiefe 0–4) · Scatter Selbsteinschätzung (C1) × Nutzungstiefe
+### E – Zielbild ✏️
+16. **E2** **Welches Betriebsmodell ist für HumanTech in drei Jahren das richtige?** AI-Native-Stufen 0–6 mit Erläuterung je Stufe.
+- ✂️ **E1 „Wo steht HumanTech heute?“ entfällt** – den Ist-Stand misst das Cobweb besser (Begründung im Chat/STATUS).
 
-**7 · C3 (P) Wie sehen Sie die Chance, die KI für Ihren Arbeitsbereich bietet?**
-Slider 0–100 (klein … riesig) → Gauge; zugleich y-Achse der Matrix
+### F – Was zuerst?
+17. **F1** Wo sollte KI als Erstes ansetzen? 10 Punkte (wie v0.3, inkl. Produktion)
+18. 🆕 **F2 Use-Case-Steckbrief** (ein Screen):
+    - **Welche Aufgabe in Ihrem Arbeitsalltag kostet Sie am meisten Zeit und könnte durch KI unterstützt werden?** (Pflicht, 2 Zeilen)
+    - **Wie viel Zeit kostet Sie diese Aufgabe pro Woche?** Slider 0–20 Std.
+    - **Mit welchen Daten arbeiten Sie dabei?** (die sensibelste zählt): öffentlich zugänglich (Literatur, Normen) · interne Dokumente (SOPs, Präsentationen) · vertrauliche Geschäftsdaten (Preise, Verträge, Entwicklungsdaten) · personenbezogene Daten · Patienten- oder klinische Daten · weiß nicht
+19. **F3** *(optional)* Weitere Aufgaben oder eine konkrete Idee für einen KI-Anwendungsfall (2 Felder)
+20. **F4** Wie viel Zeit könnten Sie insgesamt pro Woche gewinnen? Slider 0–20 Std. (wie v0.3)
 
-→ **Matrix Wissen × Chance** wird aus C1 × C3 berechnet (keine eigene Frage), Scatter mit 4 Quadranten.
+### G – Regeln
+21. **G1** Was hält Sie am meisten zurück? (max. 2) (wie v0.3)
+22. 🆕 **G2 KI-Ampel** (ersetzt G3 „Was soll die Richtlinie regeln?“, bei der erfahrungsgemäß fast alle alles ankreuzen):
+    **Wie weit darf KI bei diesen Aufgaben gehen?** Je Zeile: 🟢 selbstständig vorbereiten · 🟡 nur mit fachlicher Prüfung · 🔴 gar nicht · weiß nicht
+    - E-Mails und Texte entwerfen
+    - Gebrauchsanweisungen und Dokumente übersetzen
+    - Literatur für die klinische Bewertung auswerten
+    - CAPA- und Reklamationsanalysen vorbereiten
+    - Technische Dokumentation (MDR) erstellen oder aktualisieren
+    - Lieferanten- und Angebotsvergleiche
+    - Bewerbungen vorsortieren
 
-## Block E – Transformationspfad (AI-Native-Stufen)
+### H – Wer zieht mit? / Workshop
+23. 🆕 **H0** **Würden Sie einen KI-Pilot in Ihrem Bereich mitgestalten?** ja, als Verantwortliche/r · ja, als Mitwirkende/r · eher nicht · weiß noch nicht
+24. **H1** Was muss am Ende herauskommen? (wie v0.3, Variante für Nicht-Workshop)
+25. **H2** *(optional)* Welche Frage sollen wir im Workshop unbedingt klären? → Fragenwand
+26. **H3** *(optional)* Bedenken oder sonst etwas
 
-**8 · E1 (P) Wo steht HumanTech heute?**
-Stufen-Auswahl als Treppe:
-- 0 Abwarten – KI offiziell kein Thema
-- 1 Schatten-KI – Private Accounts, ungesteuert
-- 2 Freigegeben – Lizenzen, Regeln, Führerschein
-- 3 Fragmentiert – KI-Inseln, unverbunden
-- 4 Integriert – Wertströme Ende-zu-Ende neu gestaltet
-- 5 Agentenbasiert – Mensch + Agent als Team
-- 6 AI-Native – Organisiert um Absicht und Ergebnis
+### Abschluss ✏️
+🆕 **„Ihr persönliches KI-Profil“**: Nach dem Absenden sehen Teilnehmende ihr eigenes Cobweb (Ist/Ziel), ihre Nutzungstiefe und ihren Quadranten (z. B. „Starter“). Das ist der Dank fürs Mitmachen und macht neugierig auf den Workshop. Gruppenwerte werden dort nicht gezeigt.
 
-→ Treppe mit Verteilung
+## Präsentation – Dramaturgie und Visuals (forscher)
 
-**9 · E2 (P) Wo sollte HumanTech in drei Jahren stehen?**
-Gleiche Stufen-Auswahl → Treppe „heute vs. Ziel“ + Ø-Abstand (Eröffnungsfolie)
+| # | Folie | Visual |
+|---|---|---|
+| 1 | Titel + Teilnahme | großer Zähler (Count-up) |
+| 2 | 🆕 **Hero:** „X % nutzen für ihre Arbeit private KI-Zugänge“ (Titel: „Schatten-KI: private Zugänge im Arbeitsalltag“) | Riesenzahl, eine Zeile Kontext |
+| 3 | Stimmungsbild | Wortwolke + Chance-Gauge |
+| 4 | 🆕 **Wo wir stehen: Reifegrad Ist** | Cobweb, nur Ist (blau) |
+| 5 | 🆕 **…und wo wir hinwollen** | gleiches Cobweb, per Pfeiltaste baut sich Ziel (orange) auf; Fläche dazwischen = Lücke |
+| 6 | 🆕 **Die größten Lücken** | Lücken-Ranking je Dimension (Hantel-Diagramm Ist → Ziel) |
+| 7 | 🆕 **Führung und Team im Vergleich** | zwei Cobwebs übereinander (GF/AL vs. übrige), nur ab Mindestgruppe |
+| 8 | 🆕 **Blinde Flecken** | Anteil „kann ich nicht beurteilen“ je Dimension |
+| 9 | Nutzungstiefe & Copilot-Score | Treppe + Gauge |
+| 10 | Selbstbild vs. Realität · Haltung | Scatter + Quadranten-Matrix |
+| 11 | Wo zuerst ansetzen | 10-Punkte-Ranking |
+| 12 | 🆕 **Use-Case-Landkarte** | Blasen: x = Datensensibilität (Umsetzbarkeit), y = Std./Woche, Größe = Nennungen; Quadrant „Quick Wins“ hervorgehoben (Cluster per KI) |
+| 13 | 🆕 **Hero:** „X Std. pro Woche = Y Vollzeitstellen“ | Hochrechnung aus F4 (als Selbsteinschätzung gekennzeichnet) |
+| 14 | 🆕 **KI-Ampel** | Heatmap Aufgabe × grün/gelb/rot → direkte Vorlage für die Richtlinie |
+| 15 | Hürden | Balken |
+| 16 | 🆕 **Wer zieht mit?** | Piloten nach Bereich (Namen nur, wenn eingeschaltet) |
+| 17 | Zielbild AI-Native | Verteilung auf der Treppe, Klammern 1.0/2.0/3.0 |
+| 18 | Erwartungen & offene Fragen | KI-Cluster + Fragenwand |
+| 19 | Implikationen für heute | KI-Synthese |
 
-## Block D – Reifegrad der Organisation (1 Screen)
-
-**10 · D (P) 🆕 Wie weit ist HumanTech in diesen sieben Bereichen? Bauchgefühl genügt.**
-Ein Screen, 7 Zeilen. Je Zeile Auswahl 1–5 (Initiierung · Entwicklung · Anwendung · Integration · Optimierung) oder „kann ich nicht beurteilen“. Die Stufenbeschreibung der gewählten Stufe wird direkt darunter angezeigt, alle Beschreibungen sind aufklappbar.
-
-| Kategorie | 1 Initiierung | 2 Entwicklung | 3 Anwendung | 4 Integration | 5 Optimierung |
-|---|---|---|---|---|---|
-| Geschäftsmodell & Strategie | Erste Überlegungen zur KI-Nutzung, keine klare Strategie. | Entwicklung erster KI-Strategien, Pilotprojekte, erste Überlegungen zur Transformation des Geschäftsmodells. | Klare, mit den Geschäftszielen abgestimmte KI-Strategie, Anpassung des Geschäftsmodells an KI. | KI ist vollständig in das Geschäftsmodell integriert, treibt Innovationen und Marktchancen. | KI-Strategie führt zu neuen Geschäftsmodellen, das Unternehmen nutzt KI, um Märkte neu zu gestalten. |
-| Organisation & Prozesse | Keine organisatorische Verankerung von KI. | Erste organisatorische Strukturen und Prozesse für KI-Projekte. | KI ist in ausgewählten Prozessen fest etabliert. | KI ist abteilungsübergreifend integriert. | KI ist zentraler Bestandteil der Organisationskultur, mit kontinuierlicher Prozessoptimierung. |
-| Menschen & Kultur | Geringes Bewusstsein und geringe KI-Kenntnisse. | Erste Schulungen und Sensibilisierung für KI. | Weit verbreitete KI-Kompetenzen und Akzeptanz im Arbeitsalltag. | KI-Kompetenzen sind Teil der beruflichen Entwicklung, interdisziplinäre Zusammenarbeit. | KI-Exzellenz in der Belegschaft, kontinuierliche Weiterbildung und Innovationskultur. |
-| Technologie & Daten | Grundlegende IT-Infrastruktur, ohne KI-Ausrichtung. | Erste spezifische Technologien und Datenstrukturen für KI. | Fortgeschrittene Technologien unterstützen KI-Anwendungen, Daten werden systematisch genutzt. | Integrierte Technologieplattformen und strukturierte Datenstrategie zur Unterstützung von KI. | Führende Technologie- und Dateninfrastruktur für kontinuierliche Innovation und Echtzeitanpassung. |
-| Prozesse & Kunden | Keine Nutzung von KI in Prozessen oder der Kundeninteraktion. | Erste Pilotprojekte zur Prozessautomatisierung und Kundeninteraktion. | KI optimiert Prozesse und verbessert die Kundeninteraktion. | Vollständig integrierte, KI-gestützte Prozesse und personalisierte Kundeninteraktionen. | KI transformiert Prozesse und bietet maßgeschneiderte Echtzeit-Kundenerlebnisse. |
-| Recht & Ethik | Kaum Berücksichtigung von rechtlichen und ethischen Fragen. | Erste Überlegungen zu Compliance, Datenschutz und Ethik. | Klare Richtlinien für rechtliche und ethische Fragestellungen, Schulungen und Implementierung. | Umfassende Integration von rechtlichen und ethischen Standards, kontinuierliche Überprüfung. | Vorreiterrolle in der Entwicklung und Implementierung von Best Practices in Recht und Ethik. |
-| Datenschutz & Compliance | Keine Berücksichtigung von Datenschutz und Compliance. | Erste Auseinandersetzung mit Datenschutzanforderungen. | Klar definierte Datenschutz- und Compliance-Richtlinien werden in KI-Projekten umgesetzt. | Datenschutz- und Compliance-Richtlinien sind vollständig in alle Prozesse integriert. | Datenschutz & Compliance als führende Standards, proaktive Maßnahmen und Branchenvorbild. |
-
-→ Radar/Profil (Mittelwert je Kategorie, Streuung als Band), Heatmap Kategorie × Stufe
-
-## Block F – Potenziale & Anwendungsfelder
-
-**11 · F1 (P) 🆕 Wo sollte KI bei HumanTech als Erstes ansetzen? Verteilen Sie 10 Punkte.**
-Punkte mit +/−, Anzeige „noch x Punkte übrig“: Clinical Affairs (Literatur, klinische Bewertung) · Regulatory & Konformitätsdokumentation (MDR, ISO 13485) · Qualitätsmanagement (CAPA, Audits, SOPs) · Wissensmanagement & interne Suche · F&E / Produktentwicklung · Produktion & Fertigung (Arbeitsanweisungen, Prüf- und Chargendokumentation) · Vertrieb, Angebote & Kundenkommunikation · Marketing & Content · Finance & Controlling · Einkauf & Lieferanten · Legal, Verträge & HR · Schulung & Qualifikationsnachweise → Ranking-Balken (Punkte + Anteil)
-
-**12 · F2 (P) 🆕 Welche Aufgaben in Ihrem Arbeitsalltag kosten Sie am meisten Zeit und könnten durch KI unterstützt werden? Gern auch eine konkrete Idee für einen KI-Anwendungsfall.**
-3 Textfelder (je 2 Zeilen), Feld 1 Pflicht, Feld 2–3 optional → KI-Cluster → Use-Case-Kandidaten-Liste
-
-**13 · F4 (P) Wie viel Zeit könnten Sie pro Woche gewinnen, wenn KI Sie gut unterstützt?**
-Slider 0–20 Std. → Dot-Plot + Summe hochgerechnet
-
-## Block G – Hürden & Rahmen
-
-**14 · G1 (P) Was hält Sie bei KI am meisten zurück? (max. 2)**
-Multi max 2: Datenschutz & Vertraulichkeit · fehlende Regeln, was erlaubt ist · zu wenig Wissen/Schulung · keine Zeit zum Ausprobieren · passende Tools fehlen · Qualität/Fehler der Ergebnisse · regulatorische Unsicherheit (MDR, ISO 13485) · nichts – ich lege los · Sonstiges → Balken
-
-**15 · G3 (P) Was sollte eine KI-Richtlinie für HumanTech unbedingt regeln?**
-Multi: erlaubte Tools · Umgang mit vertraulichen/personenbezogenen Daten · Prüfpflichten für KI-Ergebnisse · Kennzeichnung von KI-Inhalten · Schulung & Nachweise · Verantwortlichkeiten / Ansprechpartner · Freigabeprozess für neue Anwendungsfälle → Balken
-
-## Block H – Workshop & Abschluss
-
-**16 · H1 (P) Was muss am Ende des Workshops herauskommen, damit er sich für Sie gelohnt hat?**
-Freitext → KI-Cluster (Erfolgskriterien)
-🆕 Variante für Nur-Umfrage-Teilnehmer: *„Was müsste die KI-Initiative für Sie verändern, damit sie sich gelohnt hat?“*
-
-**17 · H2 (O) Welche Frage sollen wir im Workshop unbedingt klären?**
-Freitext (kurz) → Fragenwand
-
-**18 · H3 (O) 🆕 Welche Bedenken sollten wir ernst nehmen – oder gibt es sonst etwas, das wir wissen sollten?**
-Freitext → KI-Cluster + Zitate
-
-## Abschluss
-
-„Vielen Dank! Ihre Antworten sind gespeichert. Bis [Stichtag] können Sie sie noch ändern.“ + Zusammenfassung der eigenen Antworten.
-
----
-
-## Gestrichen gegenüber v0.1
-
-B4 Einsatzzwecke (in neuer C2 aufgegangen) · B5 bester KI-Moment · B6 Zeitersparnis heute · C2/C3 Wissens-Checks (Quiz) · C5 Matrix (berechnet) · D1–D7 als Einzelscreens (→ 1 Screen) · E3 nächste Stufe · F3 (in F2) · F5 Reinvestition · G2 Regelsicherheit · G4 (in H3) · G5 Unterstützung
-
-## Auswertungs-Deck (Gliederung, generiert)
-
-1. Titel · Teilnahme (x von 17, nach Gesellschaft/Bereich)
-2. **Transformationspfad: heute vs. Ziel** (E1/E2) – Eröffnung
-3. Stimmungsbild: Wortwolke (A1) + Chance (C3)
-4. Nutzung heute: Häufigkeit und Tools (B1, B2)
-5. Schatten-KI (B3)
-6. Kenntnisse: Tätigkeiten, Nutzungstiefe, Selbsteinschätzung vs. Nutzung, Matrix Wissen × Chance (C1–C3)
-7. Reifegrad-Profil 7 Dimensionen (D) + Heatmap
-8. Wo zuerst ansetzen: Punkte-Ranking (F1)
-9. Zeitfresser & Use-Case-Kandidaten (F2, KI-Cluster) · Zeitpotenzial (F4)
-10. Hürden & was die Richtlinie regeln muss (G1, G3)
-11. Erwartungen, offene Fragen, Bedenken (H1–H3)
-12. Implikationen für den heutigen Tag (KI-Synthese, vom Moderator editierbar)
-
-Präsentationsregel: gefilterte Werte erst ab n ≥ 3 anzeigen.
+Technisch neu dafür: Folien-„Builds“ (schrittweises Aufdecken), Hero-Folien, Bedingungslogik für Fragen (B2a), Grid mit zwei Werten je Zeile (Ist/Ziel), Ampel-Skala, Use-Case-Landkarte, Radar-Overlays nach Gruppe, persönliches Profil. Umgesetzt. Zitate in KI-Zusammenfassungen erscheinen grundsätzlich ohne Namen (Wunsch Thomas).

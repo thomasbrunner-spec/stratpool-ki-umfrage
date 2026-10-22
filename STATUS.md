@@ -5,7 +5,11 @@
 
 ## Stand
 - [x] Briefing, Projekt-CLAUDE.md, Fragebogen-Entwurf v0.1 (aus Claude-Session übergeben)
-- [x] Fragebogen v0.2 mit Thomas abgestimmt (18 Screens, Quiz durch Nutzungstiefe-Frage ersetzt) → `survey/humantech-2026.json`
+- [x] Fragebogen v0.2 mit Thomas abgestimmt (18 Screens, Quiz durch Nutzungstiefe-Frage ersetzt)
+- [x] v0.3 nach erstem Test: Zeitgewinn bis 20 Std., Produktion als Bereich und Ansatzpunkt
+- [x] **v0.4 (Neukonzeption, freigegeben):** Koerting-Reifegrad als Kerninstrument mit Ist/Ziel je Dimension (7 Screens mit HumanTech-Ankern), AI-Native nur noch als Zielbild, Use-Case-Steckbrief (Aufgabe + Std. + Datenart), KI-Ampel, Copilot-Score (bedingt), Pilot-Bereitschaft, persönliches KI-Profil nach dem Absenden; 25 Fragen, ca. 12 Min.
+- [x] Präsentation v0.4: 21 Folien – Hero-Zahlen, Cobweb mit Aufbau Ist → Ziel, Lücken-Ranking, Führung vs. Team, blinde Flecken, Use-Case-Landkarte (Quick Wins), Zeitpotenzial in Vollzeitstellen, KI-Ampel, Piloten
+- [x] Admin: KI-Zusammenfassungen gesammelt erzeugen (Auswahl), Zitate immer ohne Namen, „Antworten löschen“ je Person
 - [x] Repo angelegt + Gerüst (Express 5/SQLite/React 19/Vite, TS strict, Dockerfile, CI)
 - [x] Teilnehmer-Flow (Einladungslink + Passwort/Selbstregistrierung, Profil, 1 Frage/Screen, Autosave, Zusammenfassung, Abschluss, Stichtag-Sperre)
 - [x] Admin: Projekte, Teilnehmende (CSV-Import, Links, Status, Einladungs-/Erinnerungstexte), Dashboard mit Filtern, Einzelansicht, Export XLSX/CSV/JSON, Löschen
@@ -24,7 +28,7 @@
 - Subdomain final (`umfrage.stratpool.pro`?)
 - Offizielle Namen der Gesellschaften (aktuell aus CSV abgeleitet; im Admin änderbar)
 - Absender der Einladung (Kunde oder ERA) – Textentwürfe im Admin unter „Einladungs- & Erinnerungstexte“
-- Stufentexte AI-Native (Frage 8/9): wörtlich von Folie 9; optionale Erläuterung je Stufe über Feld `hint` in `survey/humantech-2026.json`
+- Erläuterungen je AI-Native-Stufe (Zielbild-Frage) sind von Claude formuliert (`hint` in `survey/humantech-2026.json`) – bitte prüfen
 - Matrix-Quadranten heißen jetzt Beobachter · Starter · Kritische Kenner · Treiber (statt „Skeptiker“) – bitte bestätigen
 - **Datenschutzinformation** (`src/participant/Privacy.tsx`) ist ein Entwurf – vor Versand prüfen (lassen), v. a. Aussagen zu Anthropic und Speicherdauer
 
@@ -35,6 +39,9 @@
 4. **Schriften** kommen per `@fontsource` vom eigenen Server (kein Google-Fonts-Aufruf, DSGVO).
 5. **Fragebogen-Änderungen** nur in `survey/*.json` und nur nach Freigabe; Fragen-IDs nicht umbenennen, solange Antworten existieren.
 6. Stichtag gilt bis 23:59 Uhr Europe/Berlin (Container-TZ gesetzt).
+8. **Bedingte Fragen** (`showIf`, z. B. Copilot-Score): Antworten auf wieder ausgeblendete Fragen zählen in der Auswertung nicht.
+9. **Führung vs. Team:** „Führung“ = Bereich Geschäftsführung oder internes Rollen-Kürzel beginnt mit GF/AL (CSV-Spalte `kuerzel_funktion`). Vergleich erst ab Mindestgruppengröße je Gruppe.
+10. **Wechsel v0.3 → v0.4:** Antworten auf entfallene Fragen (B1, E1, D-Raster, G3, alte F2) bleiben in der DB, werden aber nirgends mehr ausgewertet. Testpersonen im Admin über „Antworten löschen“ zurücksetzen.
 7. `BRIEFING.md` und `docs/kontext/` sind gitignored (Namen, Vertragsdaten).
 
 ## Lokal starten
