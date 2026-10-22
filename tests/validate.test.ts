@@ -18,8 +18,8 @@ describe('survey definition', () => {
     }
   });
 
-  it('has 25 questions as approved in v0.4 (incl. the conditional Copilot score)', () => {
-    expect(survey.questions).toHaveLength(25);
+  it('has 27 questions as approved in v0.5 (incl. the conditional Copilot score)', () => {
+    expect(survey.questions).toHaveLength(27);
   });
 });
 

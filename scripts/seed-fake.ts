@@ -116,6 +116,11 @@ PEOPLE.forEach(([name, func, company, workshop], idx) => {
     return lvl <= depthMax && rnd() < 0.75;
   });
   a.C2 = did.length ? { selected: did.map((o) => o.id) } : { selected: ['nichts'] };
+  // training so far: most people taught themselves, few had formal training
+  const learned = (['selbst', 'intern', 'extern'] as const).filter((_, i) => rnd() < [0.3 + k * 0.5, 0.35, 0.12][i]!);
+  a.C4 = { selected: learned.length ? [...learned] : ['keine'] };
+  const helps = ['grundlagen', 'eigene_aufgaben', 'regeln', 'power_user', 'austausch'];
+  a.C5 = { selected: [...new Set([k < 0.4 ? 'grundlagen' : pick(['eigene_aufgaben', 'regeln']), pick(helps)])] };
   a.C3 = Math.round(clamp(opt * 100 + gauss() * 12, 5, 100));
   const leader = func === 'Geschäftsführung';
   // leadership rates today's maturity a bit higher than the team – a typical perception gap

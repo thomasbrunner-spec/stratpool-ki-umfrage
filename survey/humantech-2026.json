@@ -1,6 +1,6 @@
 {
   "id": "humantech-2026",
-  "version": "0.4",
+  "version": "0.5",
   "title": "KI bei HumanTech – Ihre Sicht zählt.",
   "intro": {
     "title": "KI bei HumanTech – Ihre Sicht zählt.",
@@ -397,6 +397,65 @@
           "id": "sonstiges",
           "label": "Sonstiges",
           "other": true
+        }
+      ]
+    },
+    {
+      "id": "C4",
+      "block": "C",
+      "type": "multi",
+      "required": true,
+      "short": "Weiterbildung bisher",
+      "title": "Wie haben Sie sich bisher zu KI weitergebildet?",
+      "help": "Mehrfachauswahl möglich.",
+      "options": [
+        {
+          "id": "keine",
+          "label": "keine Schulung",
+          "exclusive": true
+        },
+        {
+          "id": "selbst",
+          "label": "selbst ausprobiert / Videos"
+        },
+        {
+          "id": "intern",
+          "label": "interne Einweisung (z. B. zu Copilot)"
+        },
+        {
+          "id": "extern",
+          "label": "externe Schulung oder Kurs"
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "block": "C",
+      "type": "multi",
+      "required": true,
+      "max": 2,
+      "short": "Was beim Lernen hilft",
+      "title": "Was würde Ihnen helfen? (max. 2)",
+      "options": [
+        {
+          "id": "grundlagen",
+          "label": "kurze Einführung in die Grundlagen"
+        },
+        {
+          "id": "eigene_aufgaben",
+          "label": "Training an meinen eigenen Aufgaben"
+        },
+        {
+          "id": "regeln",
+          "label": "klare Regeln, was erlaubt ist"
+        },
+        {
+          "id": "power_user",
+          "label": "Ansprechpartner/Power-User im Haus"
+        },
+        {
+          "id": "austausch",
+          "label": "Austausch mit Kolleginnen und Kollegen"
         }
       ]
     },
@@ -1025,6 +1084,21 @@
         {
           "kind": "depth",
           "q": "C2"
+        }
+      ]
+    },
+    {
+      "id": "s-literacy",
+      "eyebrow": "Kenntnisse",
+      "title": "Befähigung & Schulungsbedarf",
+      "widgets": [
+        {
+          "kind": "question",
+          "q": "C4"
+        },
+        {
+          "kind": "question",
+          "q": "C5"
         }
       ]
     },

@@ -1,9 +1,9 @@
-# Fragebogen v0.4 – HumanTech Spine (Stand 22.10.2026)
+# Fragebogen v0.5 – HumanTech Spine (Stand 22.10.2026)
 
-> **Status: freigegeben von Thomas (22.10.2026), umgesetzt in `survey/humantech-2026.json`.** Ältere Stände: `FRAGEBOGEN-ENTWURF-v0.1.md`, `-v0.3.md`.
+> **v0.5 = v0.4 + C4/C5 (AI Literacy).** **Status: freigegeben von Thomas (22.10.2026), umgesetzt in `survey/humantech-2026.json`.** Ältere Stände: `FRAGEBOGEN-ENTWURF-v0.1.md`, `-v0.3.md`.
 > **Noch zu prüfen:** Erläuterungen je AI-Native-Stufe (Feld `hint`, von Claude formuliert) – siehe JSON.
 > Leitidee: Jede Frage zahlt auf eine Workshop-Entscheidung ein oder erzeugt ein „Aha“. Was nur beschreibt, fliegt raus.
-> Ziel-Dauer: ca. 12 Min. · 25 Screens (davon 7 Reifegrad-Screens à ~20 Sek.) · 🆕 = neu, ✏️ = geändert
+> Ziel-Dauer: ca. 12 Min. · 27 Screens (davon 7 Reifegrad-Screens à ~20 Sek.) · 🆕 = neu, ✏️ = geändert
 
 ## Die drei Fragen, die der Workshop beantworten muss
 
@@ -27,6 +27,8 @@
 ### C – Kenntnisse & Haltung (wie v0.3)
 5. **C1** Selbsteinschätzung (Slider)
 6. **C2** Was davon schon selbst gemacht? (Nutzungstiefe)
+6a. 🆕 **C4** Wie haben Sie sich bisher zu KI weitergebildet? (Mehrfachauswahl: keine Schulung · selbst ausprobiert / Videos · interne Einweisung (z. B. zu Copilot) · externe Schulung oder Kurs)
+6b. 🆕 **C5** Was würde Ihnen helfen? (max. 2: kurze Einführung in die Grundlagen · Training an meinen eigenen Aufgaben · klare Regeln, was erlaubt ist · Ansprechpartner/Power-User im Haus · Austausch mit Kolleginnen und Kollegen) → Folie „Befähigung & Schulungsbedarf“. *Deckt AI Literacy nach EU AI Act (Vertrag Anlage 1) und die versprochenen Schulungsempfehlungen ab. Freigegeben von Thomas am 22.10.2026 (v0.5).*
 7. **C3** Chance für den eigenen Bereich (Slider)
 
 ### D – Reifegrad Ist & Ziel (Koerting, ausgebaut) ✏️

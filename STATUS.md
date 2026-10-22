@@ -4,7 +4,7 @@
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
 
 ## Nächste Session – hier weitermachen
-1. Thomas prüft die neu deployte v0.4 (Coolify Auto-Deploy nach Push `4583e71`): Teilnehmer-Durchlauf am Handy, Präsentation (21 Folien)
+1. Thomas prüft die neu deployte v0.4 (Coolify Auto-Deploy nach Push `4583e71`): Teilnehmer-Durchlauf am Handy, Präsentation (22 Folien)
 2. Testpersonen in Produktion über „Antworten löschen“ zurücksetzen (alte v0.3-Antworten)
 3. KI-Zusammenfassung live testen: Admin → KI-Zusammenfassung → alle auswählen → „Ausgewählte erzeugen“ (braucht `ANTHROPIC_API_KEY` in Coolify)
 4. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
@@ -18,6 +18,7 @@ Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, Abgleich mit Ver
 - [x] v0.3 nach erstem Test: Zeitgewinn bis 20 Std., Produktion als Bereich und Ansatzpunkt
 - [x] **v0.4 (Neukonzeption, freigegeben):** Koerting-Reifegrad als Kerninstrument mit Ist/Ziel je Dimension (7 Screens mit HumanTech-Ankern), AI-Native nur noch als Zielbild, Use-Case-Steckbrief (Aufgabe + Std. + Datenart), KI-Ampel, Copilot-Score (bedingt), Pilot-Bereitschaft, persönliches KI-Profil nach dem Absenden; 25 Fragen, ca. 12 Min.
 - [x] Präsentation v0.4: 21 Folien – Hero-Zahlen, Cobweb mit Aufbau Ist → Ziel, Lücken-Ranking, Führung vs. Team, blinde Flecken, Use-Case-Landkarte (Quick Wins), Zeitpotenzial in Vollzeitstellen, KI-Ampel, Piloten
+- [x] **v0.5:** AI Literacy ergänzt (C4 Weiterbildung bisher, C5 was hilft, max. 2) + Folie „Befähigung & Schulungsbedarf“ (22 Folien); KI-Cluster markieren Themen außerhalb der Angebotshypothesen als „neu“; Zeitpotenzial und Quick Wins vorsichtiger formuliert
 - [x] Admin: KI-Zusammenfassungen gesammelt erzeugen (Auswahl), Zitate immer ohne Namen, „Antworten löschen“ je Person
 - [x] Repo angelegt + Gerüst (Express 5/SQLite/React 19/Vite, TS strict, Dockerfile, CI)
 - [x] Teilnehmer-Flow (Einladungslink + Passwort/Selbstregistrierung, Profil, 1 Frage/Screen, Autosave, Zusammenfassung, Abschluss, Stichtag-Sperre)
@@ -41,7 +42,6 @@ Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, Abgleich mit Ver
 - Nach dem Workshop kurzes Ergebnis-PDF an alle Befragten (Rückkanal, Beteiligungsversprechen)
 
 ## Fragebogen-Vorschläge, warten auf Freigabe
-- Neue Frage zu **AI Literacy/Schulung** (bisher erhalten? Bedarf? Format?) – Vertrag nennt AI Literacy nach EU AI Act ausdrücklich, Angebot verspricht Schulungsempfehlungen
 - Optional: bestehende KI-Projekte/Assistenten im eigenen Bereich
 
 ## Offene Entscheidungen (Thomas)
