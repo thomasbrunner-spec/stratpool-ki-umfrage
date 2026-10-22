@@ -167,6 +167,10 @@ adminRouter.post('/projects', (req, res) => {
     return;
   }
   const d = body.data;
+  if (d.accessMode !== 'token' && !d.sharedPassword) {
+    res.status(400).json({ error: 'Für den Passwort-Zugang bitte ein Umfrage-Passwort setzen.' });
+    return;
+  }
   if (!getSurvey(d.surveyId)) {
     res.status(400).json({ error: 'Unbekannter Fragebogen.' });
     return;
@@ -221,7 +225,7 @@ adminRouter.put('/projects/:id', (req, res) => {
     return;
   }
   const d = body.data;
-  if ((d.accessMode !== 'token') && !p.shared_password_hash && !d.sharedPassword) {
+  if (d.accessMode !== 'token' && !p.shared_password_hash && !d.sharedPassword) {
     res.status(400).json({ error: 'Für den Passwort-Zugang bitte ein Umfrage-Passwort setzen.' });
     return;
   }

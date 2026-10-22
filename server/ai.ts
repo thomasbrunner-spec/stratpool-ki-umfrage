@@ -4,6 +4,9 @@ import { z } from 'zod';
 import { aggregateAll, type ResultRow } from '../shared/aggregate.js';
 import { pseudonymize } from '../shared/pseudonymize.js';
 import type { AiTarget, SurveyDefinition } from '../shared/types.js';
+import type { AiSummary, ClusterSummary, StoredSummary, SynthesisSummary } from '../shared/ai-types.js';
+
+export type { AiSummary };
 import { db } from './db.js';
 
 export const AI_MODEL = 'claude-opus-5-5';
@@ -28,21 +31,6 @@ const SynthesisOutput = z.object({
   implications: z.array(z.object({ title: z.string(), text: z.string() })),
   openQuestions: z.array(z.string()),
 });
-
-// ---------- Stored content (what the app keeps and the admin may edit) ----------
-
-export interface ClusterSummary {
-  mode: 'clusters';
-  answerCount: number;
-  themes: { title: string; description: string; count: number; quotes: { text: string; pid: string | null }[] }[];
-  keyStatements: string[];
-}
-
-export interface SynthesisSummary extends z.infer<typeof SynthesisOutput> {
-  mode: 'synthesis';
-}
-
-export type AiSummary = ClusterSummary | SynthesisSummary;
 
 export class AiNotConfiguredError extends Error {}
 
@@ -75,6 +63,9 @@ async function callModel<T extends z.ZodType>(schema: T, prompt: string): Promis
   return response.parsed_output as z.infer<T>;
 }
 
+/** Indirection so tests can replace the model call */
+export const aiDeps = { call: callModel };
+
 export async function summarizeClusters(
   survey: SurveyDefinition,
   target: AiTarget,
@@ -106,7 +97,7 @@ Aufgabe:
 2. Gib je Cluster einen kurzen Titel (max. 6 Wörter), eine Beschreibung in 1–2 Sätzen und 1–2 prägnante wörtliche Zitate mit ihrer Antwort-ID.
 3. Formuliere 2–4 Kernaussagen über alle Antworten hinweg.`;
 
-  const out = await callModel(ClusterOutput, prompt);
+  const out = await aiDeps.call(ClusterOutput, prompt);
   const byId = new Map(answers.map((a) => [a.id, a]));
   const themes = out.themes
     .map((t) => {
@@ -182,13 +173,13 @@ Aufgabe: Leite für die Moderatoren eine Synthese ab.
 - implications: 3–5 konkrete Implikationen für den Workshop-Tag (worauf achten, was priorisieren, welche Diskussion führen)
 - openQuestions: 2–4 Fragen, die im Workshop geklärt werden sollten`;
 
-  const out = await callModel(SynthesisOutput, prompt);
+  const out = await aiDeps.call(SynthesisOutput, prompt);
   return { mode: 'synthesis', ...out };
 }
 
 // ---------- Persistence ----------
 
-export function getSummaries(projectId: string): Record<string, { content: AiSummary; edited: boolean; generatedAt: string; model: string }> {
+export function getSummaries(projectId: string): Record<string, StoredSummary> {
   const rows = db.prepare('SELECT * FROM ai_summaries WHERE project_id = ?').all(projectId) as {
     target_key: string;
     content: string;
