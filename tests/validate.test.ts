@@ -39,7 +39,8 @@ describe('validateAnswer', () => {
 
   it('rounds slider values to the step and rejects out-of-range values', () => {
     expect(validateAnswer(q('F4'), 3.3)).toEqual({ ok: true, value: 3.5 });
-    expect(validateAnswer(q('F4'), 16).ok).toBe(false);
+    expect(validateAnswer(q('F4'), 20).ok).toBe(true);
+    expect(validateAnswer(q('F4'), 21).ok).toBe(false);
   });
 
   it('checks stairs values against the scale', () => {

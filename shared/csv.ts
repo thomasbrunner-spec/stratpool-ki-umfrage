@@ -64,6 +64,7 @@ export function guessFunction(role: string, functions: string[]): string {
     [/\bqm\b|qualit/, 'Qualitätsmanagement'],
     [/f&e|f\+e|\bfue\b|r&d|entwicklung/, 'F&E'],
     [/produkt\s*management|produktmanag/, 'Produktmanagement'],
+    [/produktion|fertigung|herstellung|\bmfg\b/, 'Produktion'],
     [/projekt/, 'Projektmanagement'],
     [/marketing/, 'Marketing'],
     [/financ|finanz|controlling/, 'Finance'],

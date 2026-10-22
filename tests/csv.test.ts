@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { guessFunction, mapCsvRows, parseCsv, toCsv } from '../shared/csv';
 
-const FUNCS = ['Geschäftsführung', 'Clinical Affairs', 'Regulatory Affairs', 'Qualitätsmanagement', 'F&E', 'Produktmanagement', 'Vertrieb/ID', 'Marketing', 'Finance', 'Legal & HR', 'Projektmanagement', 'Sonstiges'];
+const FUNCS = ['Geschäftsführung', 'Clinical Affairs', 'Regulatory Affairs', 'Qualitätsmanagement', 'F&E', 'Produktion', 'Produktmanagement', 'Vertrieb/ID', 'Marketing', 'Finance', 'Legal & HR', 'Projektmanagement', 'Sonstiges'];
 
 describe('parseCsv', () => {
   it('detects ; delimiter, handles quotes, BOM and CRLF', () => {
@@ -29,6 +29,7 @@ describe('guessFunction', () => {
     ['Projektmanager', 'Projektmanagement'],
     ['Produkt Management', 'Produktmanagement'],
     ['AL ID', 'Vertrieb/ID'],
+    ['Leitung Fertigung', 'Produktion'],
     ['DT', ''],
   ])('%s → %s', (role, expected) => {
     expect(guessFunction(role, FUNCS)).toBe(expected);

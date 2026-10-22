@@ -1,6 +1,6 @@
-# Fragebogen-Entwurf v0.2 – HumanTech Spine (Stand 22.10.2026)
+# Fragebogen-Entwurf v0.3 – HumanTech Spine (Stand 22.10.2026)
 
-> **Status: Entwurf, nicht freigegeben.** Gekürzte Fassung von v0.1 (`FRAGEBOGEN-ENTWURF-v0.1.md`).
+> **Status: v0.2 freigegeben (22.10.2026); v0.3 = Änderungen nach Test durch Thomas:** Zeitgewinn bis 20 Std., Produktion als Bereich und als Ansatzpunkt in F1.
 > Ansprache „Sie“. Ziel: ca. 10 Min. · 18 Frage-Screens · Pflicht = (P), optional = (O)
 > **🆕** = neu formuliert/zusammengelegt gegenüber v0.1 – Text bitte besonders prüfen.
 
@@ -10,7 +10,7 @@
 Am [Datum] erarbeiten wir gemeinsam im Workshop, wo KI bei HumanTech Spine den größten Nutzen stiftet. Ihre Antworten bilden die Grundlage für die Agenda. Die Umfrage dauert ca. 10 Minuten. Sie können jederzeit unterbrechen und später weitermachen. Es gibt keine falschen Antworten, eine ehrliche Einschätzung hilft uns am meisten.
 *Hinweis: Die Antworten werden mit Ihrem Namen gespeichert und nur von den ERA-Moderatoren ausgewertet. Im Workshop zeigen wir zusammengefasste Ergebnisse.* → [Datenschutzinfo]
 
-Anmeldung/Bestätigung: Name · Gesellschaft (Dropdown) · Funktion / Bereich (Dropdown: Geschäftsführung, Clinical Affairs, Regulatory Affairs, Qualitätsmanagement, F&E, Produktmanagement, Vertrieb/ID, Marketing, Finance, Legal & HR, Projektmanagement, Sonstiges + Freitext)
+Anmeldung/Bestätigung: Name · Gesellschaft (Dropdown) · Funktion / Bereich (Dropdown: Geschäftsführung, Clinical Affairs, Regulatory Affairs, Qualitätsmanagement, F&E, Produktion, Produktmanagement, Vertrieb/ID, Marketing, Finance, Legal & HR, Projektmanagement, Sonstiges + Freitext)
 
 ---
 
@@ -96,13 +96,13 @@ Ein Screen, 7 Zeilen. Je Zeile Auswahl 1–5 (Initiierung · Entwicklung · Anwe
 ## Block F – Potenziale & Anwendungsfelder
 
 **11 · F1 (P) 🆕 Wo sollte KI bei HumanTech als Erstes ansetzen? Verteilen Sie 10 Punkte.**
-Punkte mit +/−, Anzeige „noch x Punkte übrig“: Clinical Affairs (Literatur, klinische Bewertung) · Regulatory & Konformitätsdokumentation (MDR, ISO 13485) · Qualitätsmanagement (CAPA, Audits, SOPs) · Wissensmanagement & interne Suche · F&E / Produktentwicklung · Vertrieb, Angebote & Kundenkommunikation · Marketing & Content · Finance & Controlling · Einkauf & Lieferanten · Legal, Verträge & HR · Schulung & Qualifikationsnachweise → Ranking-Balken (Punkte + Anteil)
+Punkte mit +/−, Anzeige „noch x Punkte übrig“: Clinical Affairs (Literatur, klinische Bewertung) · Regulatory & Konformitätsdokumentation (MDR, ISO 13485) · Qualitätsmanagement (CAPA, Audits, SOPs) · Wissensmanagement & interne Suche · F&E / Produktentwicklung · Produktion & Fertigung (Arbeitsanweisungen, Prüf- und Chargendokumentation) · Vertrieb, Angebote & Kundenkommunikation · Marketing & Content · Finance & Controlling · Einkauf & Lieferanten · Legal, Verträge & HR · Schulung & Qualifikationsnachweise → Ranking-Balken (Punkte + Anteil)
 
 **12 · F2 (P) 🆕 Welche Aufgaben in Ihrem Arbeitsalltag kosten Sie am meisten Zeit und könnten durch KI unterstützt werden? Gern auch eine konkrete Idee für einen KI-Anwendungsfall.**
 3 Textfelder (je 2 Zeilen), Feld 1 Pflicht, Feld 2–3 optional → KI-Cluster → Use-Case-Kandidaten-Liste
 
 **13 · F4 (P) Wie viel Zeit könnten Sie pro Woche gewinnen, wenn KI Sie gut unterstützt?**
-Slider 0–15 Std. → Dot-Plot + Summe hochgerechnet
+Slider 0–20 Std. → Dot-Plot + Summe hochgerechnet
 
 ## Block G – Hürden & Rahmen
 

@@ -1,6 +1,6 @@
 {
   "id": "humantech-2026",
-  "version": "0.2",
+  "version": "0.3",
   "title": "KI bei HumanTech – Ihre Sicht zählt.",
   "intro": {
     "title": "KI bei HumanTech – Ihre Sicht zählt.",
@@ -17,6 +17,7 @@
     "Regulatory Affairs",
     "Qualitätsmanagement",
     "F&E",
+    "Produktion",
     "Produktmanagement",
     "Vertrieb/ID",
     "Marketing",
@@ -229,6 +230,7 @@
         { "id": "qm", "label": "Qualitätsmanagement (CAPA, Audits, SOPs)" },
         { "id": "wissen", "label": "Wissensmanagement & interne Suche" },
         { "id": "fue", "label": "F&E / Produktentwicklung" },
+        { "id": "produktion", "label": "Produktion & Fertigung (Arbeitsanweisungen, Prüf- und Chargendokumentation)" },
         { "id": "vertrieb", "label": "Vertrieb, Angebote & Kundenkommunikation" },
         { "id": "marketing", "label": "Marketing & Content" },
         { "id": "finance", "label": "Finance & Controlling" },
@@ -246,7 +248,7 @@
     },
     {
       "id": "F4", "block": "F", "type": "slider", "required": true, "viz": "dots",
-      "min": 0, "max": 15, "step": 0.5, "minLabel": "0 Std.", "maxLabel": "15 Std.", "unit": "Std.",
+      "min": 0, "max": 20, "step": 0.5, "minLabel": "0 Std.", "maxLabel": "20 Std.", "unit": "Std.",
       "short": "Zeitgewinn pro Woche",
       "title": "Wie viel Zeit könnten Sie pro Woche gewinnen, wenn KI Sie gut unterstützt?"
     },
