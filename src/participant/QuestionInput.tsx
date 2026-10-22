@@ -2,6 +2,10 @@ import { useId } from 'react';
 import type {
   AnswerValue,
   GridQuestion,
+  MaturityAnswer,
+  MaturityQuestion,
+  UseCaseAnswer,
+  UseCaseQuestion,
   MultiAnswer,
   MultiQuestion,
   PointsQuestion,
@@ -61,7 +65,11 @@ export function QuestionInput(props: InputProps<Question>) {
     case 'stairs':
       return <Stairs {...props} q={q} />;
     case 'grid':
-      return <Grid {...props} q={q} />;
+      return q.viz === 'ampel' ? <Ampel {...props} q={q} /> : <Grid {...props} q={q} />;
+    case 'maturity':
+      return <Maturity {...props} q={q} />;
+    case 'usecase':
+      return <UseCase {...props} q={q} />;
     case 'points':
       return <Points {...props} q={q} />;
   }
@@ -203,6 +211,8 @@ function Slider({ q, value, onChange, disabled }: InputProps<SliderQuestion>) {
         aria-valuetext={set ? `${fmt(v)} ${q.unit ?? ''}` : 'noch nicht gewählt'}
         style={{ ['--fill' as string]: set ? `${fill}%` : '0%' }}
         onChange={(e) => onChange(Number(e.target.value), true)}
+        // tapping the thumb at its start position fires no change event – count it as an answer
+        onPointerUp={(e) => !set && onChange(Number(e.currentTarget.value), false)}
         onKeyDown={(e) => {
           // keyboard users: first arrow press sets the midpoint explicitly
           if (!set && e.key.startsWith('Arrow')) onChange(v, false);
@@ -272,7 +282,7 @@ function Grid({ q, survey, value, onChange, disabled }: InputProps<GridQuestion>
                   type="button"
                   role="radio"
                   aria-checked={sel === l.value}
-                  aria-label={`${l.value} ${l.title}: ${r.descriptions[l.value - 1] ?? ''}`}
+                  aria-label={`${l.value} ${l.title}: ${r.descriptions?.[l.value - 1] ?? ''}`}
                   className={sel === l.value ? 'on' : ''}
                   disabled={disabled}
                   onClick={() => set(r.id, l.value)}
@@ -298,7 +308,7 @@ function Grid({ q, survey, value, onChange, disabled }: InputProps<GridQuestion>
                   <b>
                     {sel} {levels[sel - 1]?.title}:
                   </b>{' '}
-                  {r.descriptions[sel - 1]}
+                  {r.descriptions?.[sel - 1]}
                 </>
               ) : sel === null ? (
                 <span className="muted">{q.naLabel}</span>
@@ -309,7 +319,7 @@ function Grid({ q, survey, value, onChange, disabled }: InputProps<GridQuestion>
             <details className="levels">
               <summary>Alle Stufen anzeigen</summary>
               <ol>
-                {r.descriptions.map((d, i) => (
+                {(r.descriptions ?? []).map((d, i) => (
                   <li key={i}>
                     <b>{levels[i]?.title}:</b> {d}
                   </li>
@@ -358,6 +368,170 @@ function Points({ q, value, onChange, disabled }: InputProps<PointsQuestion>) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function Ampel({ q, survey, value, onChange, disabled }: InputProps<GridQuestion>) {
+  const levels = survey.scales[q.scale]?.levels ?? [];
+  const cur = (value && typeof value === 'object' && !Array.isArray(value) ? value : {}) as Record<string, number | null>;
+  const set = (rowId: string, v: number | null) => onChange({ ...cur, [rowId]: v }, false);
+  return (
+    <div className="grid-q">
+      {q.rows.map((r) => {
+        const sel = r.id in cur ? cur[r.id] : undefined;
+        return (
+          <div className="grid-row" key={r.id} role="radiogroup" aria-label={r.label}>
+            <div className="label">{r.label}</div>
+            <div className="ampel-seg">
+              {levels.map((l) => (
+                <button
+                  key={l.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={sel === l.value}
+                  className={`${l.tone ?? ''}${sel === l.value ? ' on' : ''}`}
+                  disabled={disabled}
+                  onClick={() => set(r.id, l.value)}
+                >
+                  <span className="dot" aria-hidden />
+                  {l.title}
+                </button>
+              ))}
+              <button type="button" role="radio" aria-checked={sel === null} className={`na${sel === null ? ' on' : ''}`} disabled={disabled} onClick={() => set(r.id, null)}>
+                {q.naLabel}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Maturity({ q, survey, value, onChange, disabled }: InputProps<MaturityQuestion>) {
+  const levels = survey.scales[q.scale]?.levels ?? [];
+  const cur: MaturityAnswer | null = value && typeof value === 'object' && 'now' in value ? (value as MaturityAnswer) : null;
+  const now = cur?.now;
+  const target = cur?.target;
+  const na = cur !== null && now === null;
+  // keep the target only while it is not below the new "today"
+  const setNow = (v: number | null) =>
+    onChange(v === null ? { now: null } : { now: v, ...(typeof target === 'number' && target >= v ? { target } : {}) }, false);
+  const setTarget = (v: number) => onChange({ now: now ?? null, target: v }, false);
+  return (
+    <div className="maturity">
+      <p className="anchor">{q.anchor}</p>
+      <div className="mat-legend" aria-hidden>
+        <span><i className="now" /> heute</span>
+        <span><i className="target" /> in drei Jahren</span>
+      </div>
+      <div className="mat-levels">
+        {q.descriptions.map((d, i) => {
+          const v = i + 1;
+          const isNow = now === v;
+          const isTarget = target === v;
+          return (
+            <div key={v} className={`mat-card${isNow ? ' now' : ''}${isTarget ? ' target' : ''}`}>
+              <div className="mat-head">
+                <span className="mat-num">{v}</span>
+                <span className="mat-title">{levels[i]?.title}</span>
+              </div>
+              <p>{d}</p>
+              <div className="mat-btns">
+                <button type="button" className={`b-now${isNow ? ' on' : ''}`} aria-pressed={isNow} disabled={disabled} onClick={() => setNow(v)}>
+                  heute
+                </button>
+                <button
+                  type="button"
+                  className={`b-target${isTarget ? ' on' : ''}`}
+                  aria-pressed={isTarget}
+                  disabled={disabled || typeof now !== 'number' || v < now}
+                  title={typeof now !== 'number' ? 'Bitte zuerst „heute“ wählen' : v < now ? 'Das Ziel liegt nicht unter dem heutigen Stand' : undefined}
+                  onClick={() => setTarget(v)}
+                >
+                  Ziel
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <button type="button" className={`btn small ghost mat-na${na ? ' on' : ''}`} aria-pressed={na} disabled={disabled} onClick={() => setNow(null)}>
+        {q.naLabel}
+      </button>
+      <p className="small muted" aria-live="polite">
+        {na
+          ? q.naLabel
+          : typeof now !== 'number'
+            ? 'Wählen Sie zuerst „heute“, dann das Ziel in drei Jahren.'
+            : typeof target !== 'number'
+              ? 'Jetzt noch das Ziel in drei Jahren wählen.'
+              : `Heute ${levels[now - 1]?.title} → Ziel ${levels[target - 1]?.title}`}
+      </p>
+    </div>
+  );
+}
+
+function UseCase({ q, value, onChange, disabled }: InputProps<UseCaseQuestion>) {
+  const cur: UseCaseAnswer = value && typeof value === 'object' && 'task' in value ? (value as UseCaseAnswer) : { task: '', hours: null, data: null };
+  const name = useId();
+  const hours = cur.hours ?? q.hoursMax / 4;
+  const fill = (hours / q.hoursMax) * 100;
+  return (
+    <div className="stack">
+      <textarea
+        className="input"
+        rows={2}
+        style={{ minHeight: 70 }}
+        maxLength={q.maxLength}
+        placeholder={q.placeholder}
+        aria-label={q.title}
+        value={cur.task}
+        disabled={disabled}
+        onChange={(e) => onChange({ ...cur, task: e.target.value }, true)}
+      />
+      <div className="field">
+        <span>{q.hoursLabel}</span>
+        <div className={`slider-value${cur.hours === null ? ' unset' : ''}`} style={{ fontSize: cur.hours === null ? 18 : 40, marginBottom: 6 }}>
+          {cur.hours === null ? 'Regler bewegen' : `${String(cur.hours).replace('.', ',')} Std.`}
+        </div>
+        <input
+          type="range"
+          className={cur.hours === null ? 'unset' : ''}
+          min={0}
+          max={q.hoursMax}
+          step={q.hoursStep}
+          value={hours}
+          disabled={disabled}
+          aria-label={q.hoursLabel}
+          style={{ ['--fill' as string]: cur.hours === null ? '0%' : `${fill}%` }}
+          onChange={(e) => onChange({ ...cur, hours: Number(e.target.value) }, true)}
+          onPointerUp={(e) => cur.hours === null && onChange({ ...cur, hours: Number(e.currentTarget.value) }, false)}
+          onKeyDown={(e) => {
+            if (cur.hours === null && e.key.startsWith('Arrow')) onChange({ ...cur, hours }, false);
+          }}
+        />
+        <div className="slider-labels">
+          <span>0 Std.</span>
+          <span>{q.hoursMax} Std.</span>
+        </div>
+      </div>
+      <div className="field">
+        <span>{q.dataLabel}</span>
+        <div className="choices" role="radiogroup" aria-label={q.dataLabel}>
+          {q.dataOptions.map((o) => {
+            const on = cur.data === o.id;
+            return (
+              <label key={o.id} className={`choice${on ? ' on' : ''}`} style={{ minHeight: 46, padding: '10px 14px' }}>
+                <input type="radio" name={name} checked={on} disabled={disabled} onChange={() => onChange({ ...cur, data: o.id }, false)} />
+                <span className="mark" aria-hidden />
+                <span>{o.label}</span>
+              </label>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

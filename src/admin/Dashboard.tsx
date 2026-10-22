@@ -1,8 +1,31 @@
 import { useEffect, useState } from 'react';
 import { api, errorText } from '../api';
-import { widgetKey, type CompareStairsResult, type MatrixResult, type SelfVsDepthResult } from '../../shared/aggregate';
-import type { ResultFilter, Widget } from '../../shared/types';
-import { CompareStairs, LevelColumns, Matrix, QuestionViz, SelfVsDepth, num } from '../charts/Viz';
+import {
+  widgetKey,
+  type CobwebResult,
+  type CobwebSplitResult,
+  type FteResult,
+  type HeroResult,
+  type MatrixResult,
+  type PilotsResult,
+  type SelfVsDepthResult,
+} from '../../shared/aggregate';
+import type { ResultFilter, UseCaseQuestion, Widget } from '../../shared/types';
+import {
+  Blindspots,
+  Bars,
+  Cobweb,
+  CobwebLegend,
+  Gaps,
+  Hero,
+  LevelColumns,
+  Matrix,
+  QuestionViz,
+  SelfVsDepth,
+  UseCaseMap,
+  num,
+  pct,
+} from '../charts/Viz';
 import type { ResultsResponse } from './types';
 
 export function useResults(projectId: string, filter: ResultFilter) {
@@ -75,36 +98,188 @@ export function FilterBar({ data, filter, setFilter }: { data: ResultsResponse; 
   );
 }
 
+export const BLUE = '#6DA7EC';
+export const ORANGE = '#FD9A00';
+
 /** Renders one deck widget (shared by dashboard and presentation). */
-export function WidgetViz({ w, data, showNames, large, limit }: { w: Widget; data: ResultsResponse; showNames: boolean; large?: boolean; limit?: number }) {
+export function WidgetViz({
+  w,
+  data,
+  showNames,
+  large,
+  limit,
+  step = 99,
+}: {
+  w: Widget;
+  data: ResultsResponse;
+  showNames: boolean;
+  large?: boolean;
+  limit?: number;
+  /** current build step of the slide (presentation); dashboard shows everything */
+  step?: number;
+}) {
   const { survey, results, names } = data;
+  const derived = results.derived[widgetKey(w)];
+  const minN = data.project.minGroupSize;
   switch (w.kind) {
     case 'question': {
       const q = survey.questions.find((x) => x.id === w.q);
       const r = results.questions[w.q];
       return q && r ? <QuestionViz q={q} survey={survey} result={r} names={names} showNames={showNames} large={large} limit={limit} /> : null;
     }
-    case 'compare_stairs': {
-      const d = results.derived[widgetKey(w)] as CompareStairsResult | undefined;
-      const q = survey.questions.find((x) => x.id === w.today);
-      return d && q?.type === 'stairs' ? <CompareStairs data={d} survey={survey} scaleId={q.scale} /> : null;
-    }
     case 'depth': {
       const d = results.depth[w.q];
       return d ? <LevelColumns levels={d.levels} /> : null;
     }
-    case 'self_vs_depth': {
-      const d = results.derived[widgetKey(w)] as SelfVsDepthResult | undefined;
-      return d ? <SelfVsDepth data={d} /> : null;
+    case 'self_vs_depth':
+      return derived ? <SelfVsDepth data={derived as SelfVsDepthResult} /> : null;
+    case 'matrix':
+      return derived ? <Matrix data={derived as MatrixResult} xLabel={w.xLabel} yLabel={w.yLabel} quadrants={w.quadrants} /> : null;
+    case 'cobweb': {
+      const c = derived as CobwebResult | undefined;
+      if (!c || c.n === 0) return <p className="empty">Noch keine Antworten.</p>;
+      const layers = [
+        { label: 'heute', color: BLUE, values: c.dims.map((d) => d.now) },
+        ...(w.show === 'now' ? [] : [{ label: 'Ziel in drei Jahren', color: ORANGE, values: c.dims.map((d) => d.target), hidden: w.show === 'build' && step < 1 }]),
+      ];
+      return (
+        <div className="cobweb-wrap">
+          <Cobweb labels={c.dims.map((d) => d.label)} layers={layers} size={large ? 'large' : 'normal'} />
+          <CobwebLegend layers={layers} />
+        </div>
+      );
     }
-    case 'matrix': {
-      const d = results.derived[widgetKey(w)] as MatrixResult | undefined;
-      return d ? <Matrix data={d} xLabel={w.xLabel} yLabel={w.yLabel} quadrants={w.quadrants} /> : null;
+    case 'cobweb_split': {
+      const sp = derived as CobwebSplitResult | undefined;
+      if (!sp) return null;
+      const small = sp.groups.filter((g) => g.n < minN);
+      if (small.length) {
+        return (
+          <p className="empty">
+            Zu wenige Antworten für einen Vergleich ({sp.groups.map((g) => `${g.label}: ${g.n}`).join(', ')}; Minimum {minN} je Gruppe).
+          </p>
+        );
+      }
+      const layers = sp.groups.map((g, i) => ({
+        label: `${g.label} (n = ${g.n})`,
+        color: i === 0 ? ORANGE : BLUE,
+        values: g.cobweb.dims.map((d) => d.now),
+        dashed: i === 1,
+      }));
+      return (
+        <div className="cobweb-wrap">
+          <Cobweb labels={sp.groups[0]!.cobweb.dims.map((d) => d.label)} layers={layers} size={large ? 'large' : 'normal'} />
+          <CobwebLegend layers={layers} />
+          <p className="small muted" style={{ textAlign: 'center', margin: 0 }}>
+            Reifegrad heute · Führung = Geschäftsführung und Abteilungsleitungen
+          </p>
+        </div>
+      );
+    }
+    case 'gaps': {
+      const c = derived as CobwebResult | undefined;
+      return c && c.n ? (
+        <div>
+          <Gaps dims={c.dims} />
+          <div className="legend" style={{ justifyContent: 'center' }}>
+            <span>
+              <i style={{ background: BLUE }} />
+              heute
+            </span>
+            <span>
+              <i style={{ background: ORANGE }} />
+              Ziel in drei Jahren
+            </span>
+            <span>Zahl rechts: durchschnittliche Lücke in Stufen</span>
+          </div>
+        </div>
+      ) : (
+        <p className="empty">Noch keine Antworten.</p>
+      );
+    }
+    case 'blindspots': {
+      const c = derived as CobwebResult | undefined;
+      return c && c.n ? <Blindspots dims={c.dims} /> : <p className="empty">Noch keine Antworten.</p>;
+    }
+    case 'hero': {
+      const h = derived as HeroResult | undefined;
+      return h && h.n ? <Hero value={pct(h.share)} text={w.text} foot={`${h.count} von ${h.n} Befragten`} /> : <p className="empty">Noch keine Antworten.</p>;
+    }
+    case 'hero_fte': {
+      const f = derived as FteResult | undefined;
+      return f && f.n ? (
+        <Hero
+          value={`${num(f.sumHours, 0)} Std.`}
+          text={`pro Woche könnten die ${f.n} Befragten mit guter KI-Unterstützung gewinnen – das entspricht rund ${num(f.fte)} Vollzeitstellen.`}
+          foot={`Selbsteinschätzung, Ø ${num(f.meanHours)} Std. pro Person und Woche, ${w.hoursPerFte} Std. je Vollzeitstelle`}
+        />
+      ) : (
+        <p className="empty">Noch keine Antworten.</p>
+      );
+    }
+    case 'usecase_map': {
+      const q = survey.questions.find((x) => x.id === w.q) as UseCaseQuestion | undefined;
+      const r = results.questions[w.q];
+      const ai = data.summaries[w.ai]?.content;
+      if (!q || r?.type !== 'usecase') return null;
+      if (!r.n) return <p className="empty">Noch keine Antworten.</p>;
+      return (
+        <div>
+          <UseCaseMap q={q} items={r.items} clusters={ai?.mode === 'clusters' ? ai : undefined} />
+          {ai?.mode !== 'clusters' && (
+            <p className="small muted" style={{ margin: 0 }}>
+              Jeder Punkt ist eine genannte Aufgabe. Nach der KI-Zusammenfassung erscheinen hier gebündelte Themen.
+            </p>
+          )}
+        </div>
+      );
+    }
+    case 'pilots': {
+      const p = derived as PilotsResult | undefined;
+      if (!p || !p.n) return <p className="empty">Noch keine Antworten.</p>;
+      const pilotNames = showNames ? p.yesPids.map((pid) => names[pid]).filter(Boolean) : [];
+      return (
+        <div className="pilots">
+          <div className="pilots-head">
+            <span className="hero-v" style={{ fontSize: 96 }}>
+              {p.yes}
+            </span>
+            <span className="hero-t" style={{ fontSize: 22 }}>
+              von {p.n} Befragten würden einen KI-Pilot mitgestalten
+              <br />
+              <span className="small muted">
+                {p.byOption.map((o) => `${o.label}: ${o.count}`).join(' · ')}
+              </span>
+            </span>
+          </div>
+          <Bars
+            items={p.byFunc
+              .filter((f) => f.yes > 0)
+              .slice(0, limit ?? Infinity)
+              .map((f) => ({ label: f.label, share: f.yes / Math.max(...p.byFunc.map((x) => x.yes), 1), value: String(f.yes), sub: `von ${f.total}` }))}
+          />
+          {pilotNames.length > 0 && <p className="small muted">Bereit: {pilotNames.join(', ')}</p>}
+        </div>
+      );
     }
     default:
       return null;
   }
 }
+
+const DERIVED_TITLES: Partial<Record<Widget['kind'], string>> = {
+  cobweb: 'Reifegrad-Profil: heute vs. Ziel',
+  gaps: 'Lücken je Bereich',
+  cobweb_split: 'Führung vs. Team',
+  blindspots: 'Blinde Flecken („kann ich nicht beurteilen“)',
+  hero: 'Kennzahl',
+  hero_fte: 'Zeitpotenzial',
+  usecase_map: 'Use-Case-Landkarte',
+  pilots: 'Pilot-Bereitschaft',
+  depth: 'Nutzungstiefe (höchste erreichte Stufe)',
+  self_vs_depth: 'Selbsteinschätzung nach Nutzungstiefe',
+  matrix: 'Matrix Kenntnisse × Chance',
+};
 
 export function Dashboard({ projectId }: { projectId: string }) {
   const [filter, setFilter] = useState<ResultFilter>({});
@@ -113,7 +288,11 @@ export function Dashboard({ projectId }: { projectId: string }) {
   if (!data) return <p className="muted">Wird geladen …</p>;
   const { survey, results } = data;
   const p = results.participation;
-  const cmp = Object.values(results.derived).find((d): d is CompareStairsResult => 'meanGap' in d);
+  const cobweb = Object.values(results.derived).find((d): d is CobwebResult => 'dims' in d);
+  const avg = (xs: (number | null)[]) => {
+    const v = xs.filter((x): x is number => x !== null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
 
   return (
     <div>
@@ -129,12 +308,12 @@ export function Dashboard({ projectId }: { projectId: string }) {
           </div>
           <div className="l">Abgeschlossen</div>
         </div>
-        {cmp && (
+        {cobweb && cobweb.n > 0 && (
           <div className="kpi">
             <div className="v">
-              {num(cmp.today.mean)} → {num(cmp.target.mean)}
+              {num(avg(cobweb.dims.map((d) => d.now)))} → {num(avg(cobweb.dims.map((d) => d.target)))}
             </div>
-            <div className="l">AI-Native-Stufe heute → Ziel</div>
+            <div className="l">Ø Reifegrad heute → Ziel</div>
           </div>
         )}
       </div>
@@ -142,20 +321,13 @@ export function Dashboard({ projectId }: { projectId: string }) {
       <div className="dash-grid">
         {survey.deck
           .flatMap((s) => s.widgets)
-          .filter((w) => w.kind === 'compare_stairs' || w.kind === 'depth' || w.kind === 'self_vs_depth' || w.kind === 'matrix')
+          .filter((w) => w.kind in DERIVED_TITLES)
+          .filter((w, i, all) => all.findIndex((x) => JSON.stringify(x) === JSON.stringify(w)) === i)
           .map((w, i) => (
-            <div className="viz-card" key={`d${i}`} style={w.kind === 'compare_stairs' ? { gridColumn: '1 / -1' } : undefined}>
-              <h3>
-                {w.kind === 'compare_stairs'
-                  ? 'Transformationspfad: heute vs. in drei Jahren'
-                  : w.kind === 'depth'
-                    ? 'Nutzungstiefe (höchste erreichte Stufe)'
-                    : w.kind === 'self_vs_depth'
-                      ? 'Selbsteinschätzung nach Nutzungstiefe'
-                      : `Matrix ${w.kind === 'matrix' ? `${w.xLabel} × ${w.yLabel}` : ''}`}
-              </h3>
+            <div className="viz-card" key={`d${i}`} style={w.kind === 'usecase_map' || w.kind === 'gaps' ? { gridColumn: '1 / -1' } : undefined}>
+              <h3>{DERIVED_TITLES[w.kind]}</h3>
               <div className="sub">Abgeleitete Auswertung</div>
-              <WidgetViz w={w} data={data} showNames large={w.kind === 'compare_stairs'} />
+              <WidgetViz w={w} data={data} showNames />
             </div>
           ))}
         {survey.questions.map((q, i) => {

@@ -174,7 +174,7 @@ export function ProjectForm({
         <div className="stack">
           <label className="check">
             <input type="checkbox" checked={v.showNames} onChange={(e) => setV({ ...v, showNames: e.target.checked })} />
-            Namen bei Zitaten in der Präsentation zeigen (global, je Folie überschreibbar)
+            Namen in der Präsentation zeigen – nur Fragenwand und Pilot-Bereitschaft; KI-Zitate immer ohne Namen (je Folie überschreibbar)
           </label>
           <label className="field" style={{ maxWidth: 320 }}>
             <span>Mindestgröße gefilterter Gruppen in der Präsentation</span>

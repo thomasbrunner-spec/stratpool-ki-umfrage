@@ -23,6 +23,7 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
   const { project, participants, survey } = data;
   const [modal, setModal] = useState<'add' | 'import' | 'texts' | { edit: ParticipantView } | { answers: ParticipantView } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState<string | null>(null);
   const { toast, show } = useToast();
 
   const c = useMemo(
@@ -43,6 +44,17 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
     }
     await api.del(`/api/admin/participants/${p.id}`);
     setConfirmDelete(null);
+    reload();
+  };
+
+  const reset = async (p: ParticipantView) => {
+    if (confirmReset !== p.id) {
+      setConfirmReset(p.id);
+      return;
+    }
+    await api.del(`/api/admin/participants/${p.id}/answers`);
+    setConfirmReset(null);
+    show(`Antworten von ${p.name} gelöscht`);
     reload();
   };
 
@@ -123,6 +135,15 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
                       )}
                       <button className="btn small" disabled={p.status === 'invited'} onClick={() => setModal({ answers: p })}>
                         Antworten
+                      </button>
+                      <button
+                        className={`btn small ${confirmReset === p.id ? 'danger' : 'ghost'}`}
+                        disabled={p.status === 'invited'}
+                        title="Löscht alle Antworten dieser Person, die Person bleibt eingeladen"
+                        onClick={() => void reset(p)}
+                        onBlur={() => setConfirmReset(null)}
+                      >
+                        {confirmReset === p.id ? 'Antworten wirklich löschen?' : 'Antworten löschen'}
                       </button>
                       <button className="btn small ghost" onClick={() => setModal({ edit: p })}>
                         Bearbeiten

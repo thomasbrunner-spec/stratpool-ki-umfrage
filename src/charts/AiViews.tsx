@@ -1,18 +1,7 @@
 import type { ClusterSummary, StoredSummary, SynthesisSummary } from '../../shared/ai-types';
 
-export function ClusterView({
-  s,
-  names,
-  showNames,
-  maxThemes,
-  compact,
-}: {
-  s: ClusterSummary;
-  names?: Record<string, string>;
-  showNames?: boolean;
-  maxThemes?: number;
-  compact?: boolean;
-}) {
+// Quotes are always shown without names (decision Thomas, 2026-10-22).
+export function ClusterView({ s, maxThemes, compact }: { s: ClusterSummary; maxThemes?: number; compact?: boolean }) {
   if (!s.themes.length) return <p className="empty">Keine Freitext-Antworten.</p>;
   const themes = s.themes.slice(0, maxThemes ?? s.themes.length);
   return (
@@ -25,10 +14,7 @@ export function ClusterView({
           </div>
           {!compact && <p>{t.description}</p>}
           {t.quotes.slice(0, compact ? 1 : 2).map((q, k) => (
-            <q key={k}>
-              {q.text}
-              {showNames && q.pid && names?.[q.pid] ? ` – ${names[q.pid]}` : ''}
-            </q>
+            <q key={k}>{q.text}</q>
           ))}
         </div>
       ))}
@@ -72,22 +58,10 @@ export function SynthesisView({ s }: { s: SynthesisSummary }) {
   );
 }
 
-export function SummaryView({
-  stored,
-  names,
-  showNames,
-  compact,
-  maxThemes,
-}: {
-  stored: StoredSummary | undefined;
-  names?: Record<string, string>;
-  showNames?: boolean;
-  compact?: boolean;
-  maxThemes?: number;
-}) {
+export function SummaryView({ stored, compact, maxThemes }: { stored: StoredSummary | undefined; compact?: boolean; maxThemes?: number }) {
   if (!stored) return <p className="empty">Noch keine KI-Zusammenfassung erstellt.</p>;
   return stored.content.mode === 'clusters' ? (
-    <ClusterView s={stored.content} names={names} showNames={showNames} compact={compact} maxThemes={maxThemes} />
+    <ClusterView s={stored.content} compact={compact} maxThemes={maxThemes} />
   ) : (
     <SynthesisView s={stored.content} />
   );

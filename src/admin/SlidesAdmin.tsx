@@ -27,14 +27,15 @@ export function SlidesAdmin({ projectId }: { projectId: string }) {
   const hasTexts = (id: string) =>
     data.survey.deck
       .find((s) => s.id === id)
-      ?.widgets.some((w) => w.kind === 'ai' || (w.kind === 'question' && data.survey.questions.find((q) => q.id === w.q)?.type === 'short_text'));
+      ?.widgets.some((w) => w.kind === 'pilots' || (w.kind === 'question' && data.survey.questions.find((q) => q.id === w.q)?.type === 'short_text'));
 
   return (
     <div className="stack">
       <div className="row">
         <p className="muted" style={{ margin: 0 }}>
-          Folien ein- und ausblenden, Moderatoren-Kommentar ergänzen (erscheint als Hinweisbox auf der Folie). Namen bei Zitaten: global in den
-          Einstellungen ({data.project.showNames ? 'an' : 'aus'}), hier je Folie überschreibbar.
+          Folien ein- und ausblenden, Moderatoren-Kommentar ergänzen (erscheint als Hinweisbox auf der Folie). Zitate aus KI-Zusammenfassungen
+          erscheinen immer ohne Namen. Namen an der Fragenwand und bei der Pilot-Bereitschaft: global in den Einstellungen (
+          {data.project.showNames ? 'an' : 'aus'}), hier je Folie überschreibbar.
         </p>
         <span className="spacer" />
         <button className="btn primary" onClick={() => navigate(`/admin/p/${projectId}/praesentation`)}>
@@ -48,7 +49,7 @@ export function SlidesAdmin({ projectId }: { projectId: string }) {
             <th>#</th>
             <th>Folie</th>
             <th>Anzeigen</th>
-            <th>Namen bei Zitaten</th>
+            <th>Namen</th>
             <th style={{ width: '40%' }}>Moderatoren-Kommentar</th>
           </tr>
         </thead>

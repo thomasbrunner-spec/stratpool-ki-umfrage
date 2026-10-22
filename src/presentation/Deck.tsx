@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { widgetKey, type CompareStairsResult, type QuestionResult } from '../../shared/aggregate';
+import { widgetKey, type CobwebResult, type QuestionResult } from '../../shared/aggregate';
 import type { DeckSlide, ResultFilter, Widget } from '../../shared/types';
 import { navigate } from '../router';
 import { num, pct } from '../charts/Viz';
@@ -11,18 +11,36 @@ interface Kpi {
   label: string;
   value: string;
   accent?: boolean;
+  /** shown from this build step on */
+  step?: number;
 }
+
+/** Widgets that fill the whole slide without panel and KPI box */
+const FULL_BLEED: Widget['kind'][] = ['hero', 'hero_fte'];
+const NO_KPI: Widget['kind'][] = ['usecase_map', 'pilots', 'cobweb_split', 'ai'];
 
 /** Key figure shown in the right-hand KPI box (as in the reference video). */
 function kpisFor(w: Widget, data: ResultsResponse): Kpi[] {
   const { results, survey } = data;
-  if (w.kind === 'compare_stairs') {
-    const d = results.derived[widgetKey(w)] as CompareStairsResult | undefined;
-    if (!d) return [];
+  if (w.kind === 'cobweb' || w.kind === 'gaps' || w.kind === 'blindspots') {
+    const c = results.derived[widgetKey(w)] as CobwebResult | undefined;
+    if (!c || !c.n) return [];
+    const avg = (xs: (number | null)[]) => {
+      const v = xs.filter((x): x is number => x !== null);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
+    if (w.kind === 'blindspots') {
+      const top = [...c.dims].sort((a, b) => b.na / (b.n + b.na || 1) - a.na / (a.n + a.na || 1))[0];
+      return top ? [{ label: 'Antworten', value: String(c.n) }, { label: `größter blinder Fleck: ${top.label}`, value: pct(top.na / (top.n + top.na || 1)), accent: true }] : [];
+    }
+    if (w.kind === 'gaps') {
+      const top = [...c.dims].sort((a, b) => (b.gap ?? -9) - (a.gap ?? -9))[0];
+      return top ? [{ label: 'Antworten', value: String(c.n) }, { label: `größte Lücke: ${top.label}`, value: `+${num(top.gap)}`, accent: true }] : [];
+    }
     return [
-      { label: 'Ø heute', value: num(d.today.mean) },
-      { label: 'Ø Ziel in 3 Jahren', value: num(d.target.mean), accent: true },
-      { label: 'Abstand', value: d.meanGap === null ? '–' : `+${num(d.meanGap)} Stufen` },
+      { label: 'Antworten', value: String(c.n) },
+      { label: 'Ø heute', value: num(avg(c.dims.map((d) => d.now))) },
+      { label: 'Ø Ziel in 3 Jahren', value: num(avg(c.dims.map((d) => d.target))), accent: true, step: 1 },
     ];
   }
   if (w.kind === 'ai') {
@@ -50,6 +68,12 @@ function kpisFor(w: Widget, data: ResultsResponse): Kpi[] {
       return top ? [n, { label: top.label, value: pct(top.share), accent: true }] : [n];
     }
     case 'grid': {
+      if (q.type === 'grid' && q.viz === 'ampel') {
+        // the clearest red line: highest share of "not at all" (last level)
+        const share = (x: (typeof r.rows)[number]) => (x.counts.at(-1) ?? 0) / Math.max(1, x.counts.reduce((a, b) => a + b, 0) + x.na);
+        const red = [...r.rows].sort((a, b) => share(b) - share(a))[0];
+        return red && share(red) > 0 ? [n, { label: `klarste rote Linie: ${red.label}`, value: pct(share(red)), accent: true }] : [n];
+      }
       const means = r.rows.map((x) => x.mean).filter((x): x is number => x !== null);
       const avg = means.length ? means.reduce((a, b) => a + b, 0) / means.length : null;
       return [n, { label: 'Ø Reifegrad (1–5)', value: num(avg), accent: true }];
@@ -65,8 +89,11 @@ function kpisFor(w: Widget, data: ResultsResponse): Kpi[] {
 
 function widgetTitle(w: Widget, data: ResultsResponse): string {
   switch (w.kind) {
-    case 'question':
-      return data.survey.questions.find((q) => q.id === w.q)?.title ?? '';
+    case 'question': {
+      const q = data.survey.questions.find((x) => x.id === w.q);
+      // the AI-Native stairs carry their own labels; the slide title says enough
+      return q?.type === 'stairs' ? '' : (q?.title ?? '');
+    }
     case 'depth':
       return 'Nutzungstiefe: höchste erreichte Stufe je Person';
     case 'self_vs_depth':
@@ -75,12 +102,30 @@ function widgetTitle(w: Widget, data: ResultsResponse): string {
       return `${w.xLabel} × ${w.yLabel}`;
     case 'ai':
       return data.survey.aiTargets.find((t) => t.key === w.key)?.label ?? '';
+    case 'blindspots':
+      return 'Anteil „kann ich nicht beurteilen“ je Bereich';
     default:
       return '';
   }
 }
 
-function SlideView({ s, data, index, total, filtered, suppressed }: { s: DeckSlide; data: ResultsResponse; index: number; total: number; filtered: boolean; suppressed: boolean }) {
+function SlideView({
+  s,
+  data,
+  index,
+  total,
+  filtered,
+  suppressed,
+  step,
+}: {
+  s: DeckSlide;
+  data: ResultsResponse;
+  index: number;
+  total: number;
+  filtered: boolean;
+  suppressed: boolean;
+  step: number;
+}) {
   const setting = data.slides[s.id];
   const showNames = setting?.showNames ?? data.project.showNames;
   const n = data.results.n;
@@ -130,7 +175,21 @@ function SlideView({ s, data, index, total, filtered, suppressed }: { s: DeckSli
   }
 
   const single = s.widgets.length === 1;
-  const kpis = single ? kpisFor(s.widgets[0]!, data) : [];
+  const first = s.widgets[0]!;
+  if (single && FULL_BLEED.includes(first.kind)) {
+    return (
+      <>
+        <div className="eyebrow">{s.eyebrow}</div>
+        <h2>{s.title}</h2>
+        <div className="hero-slide">
+          {suppressed ? <p className="suppressed">Zu wenige Antworten für diese Auswahl.</p> : <WidgetViz w={first} data={data} showNames={false} />}
+        </div>
+        {setting?.note && <div className="note-mod">{setting.note}</div>}
+        {footer}
+      </>
+    );
+  }
+  const kpis = single && !NO_KPI.includes(first.kind) ? kpisFor(first, data) : [];
   const isSynthesis = s.widgets.length === 1 && s.widgets[0]!.kind === 'ai' && data.summaries[s.widgets[0]!.key]?.content.mode === 'synthesis';
 
   return (
@@ -145,12 +204,12 @@ function SlideView({ s, data, index, total, filtered, suppressed }: { s: DeckSli
         <div className={`body${single && kpis.length && !isSynthesis ? ' kpi-right' : s.widgets.length > 1 ? ' w2' : ''}`}>
           {s.widgets.map((w, i) => (
             <div className="panel" key={i}>
-              {!(single && w.kind === 'compare_stairs') && !isSynthesis && <h4>{widgetTitle(w, data)}</h4>}
+              {!isSynthesis && widgetTitle(w, data) && <h4>{widgetTitle(w, data)}</h4>}
               <div className="viz">
                 {w.kind === 'ai' ? (
-                  <SummaryView stored={data.summaries[w.key]} names={data.names} showNames={showNames} compact={!single} maxThemes={single ? 6 : 4} />
+                  <SummaryView stored={data.summaries[w.key]} compact={!single} maxThemes={single ? 6 : 4} />
                 ) : (
-                  <WidgetViz w={w} data={data} showNames={showNames} large={single} limit={single ? 9 : 7} />
+                  <WidgetViz w={w} data={data} showNames={showNames} large={single} limit={single ? 9 : 7} step={step} />
                 )}
               </div>
             </div>
@@ -158,7 +217,7 @@ function SlideView({ s, data, index, total, filtered, suppressed }: { s: DeckSli
           {single && kpis.length > 0 && !isSynthesis && (
             <div className="kpibox">
               {kpis.map((k) => (
-                <div key={k.label}>
+                <div key={k.label} className={(k.step ?? 0) > step ? 'build-hidden' : 'build-shown'}>
                   <div className="l">{k.label}</div>
                   <div className={`v${k.accent ? ' o' : ''}`} style={k.value.length > 8 ? { fontSize: 30 } : undefined}>
                     {k.value}
@@ -179,6 +238,7 @@ export function Deck({ projectId }: { projectId: string }) {
   const [filter, setFilter] = useState<ResultFilter>({});
   const { data, error } = useResults(projectId, filter);
   const [cur, setCur] = useState(() => Math.max(0, Number(location.hash.slice(1)) - 1 || 0));
+  const [step, setStep] = useState(0);
   const [overview, setOverview] = useState(false);
   const [hud, setHud] = useState(true);
   const deckRef = useRef<HTMLDivElement>(null);
@@ -190,10 +250,18 @@ export function Deck({ projectId }: { projectId: string }) {
     (i: number) => {
       const next = Math.max(0, Math.min(total - 1, i));
       setCur(next);
+      setStep(0);
       history.replaceState(null, '', `#${next + 1}`);
     },
     [total],
   );
+
+  const stepsOf = (i: number) => slides[i]?.steps ?? 1;
+  const forward = useCallback(() => {
+    if (step < (slides[cur]?.steps ?? 1) - 1) setStep(step + 1);
+    else show(cur + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, cur, show, slides.length]);
 
   useEffect(() => {
     const fit = () => {
@@ -210,10 +278,11 @@ export function Deck({ projectId }: { projectId: string }) {
       if (e.key === 'Escape') setOverview(false);
       else if (['ArrowRight', 'PageDown', ' '].includes(e.key)) {
         e.preventDefault();
-        show(cur + 1);
+        forward();
       } else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
         e.preventDefault();
-        show(cur - 1);
+        if (step > 0) setStep(step - 1);
+        else show(cur - 1);
       } else if (e.key === 'Home') show(0);
       else if (e.key === 'End') show(total - 1);
       else if (e.key === 'o' || e.key === 'O') setOverview((o) => !o);
@@ -224,7 +293,7 @@ export function Deck({ projectId }: { projectId: string }) {
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
-  }, [cur, show, total]);
+  }, [cur, show, total, step, forward]);
 
   useEffect(() => {
     const onMove = () => {
@@ -250,7 +319,7 @@ export function Deck({ projectId }: { projectId: string }) {
         <div className="deck" ref={deckRef}>
           {slides.map((s, i) => (
             <section key={s.id} className={`slide${i === cur ? ' on' : ''}${s.widgets[0]?.kind === 'participation' ? ' title-slide' : ''}`} aria-hidden={i !== cur}>
-              <SlideView s={s} data={data} index={i} total={total} filtered={filtered} suppressed={suppressed} />
+              <SlideView s={s} data={data} index={i} total={total} filtered={filtered} suppressed={suppressed} step={i === cur ? step : stepsOf(i) - 1} />
             </section>
           ))}
         </div>
@@ -265,7 +334,7 @@ export function Deck({ projectId }: { projectId: string }) {
         <span>
           {cur + 1} / {total}
         </span>
-        <button onClick={() => show(cur + 1)} aria-label="Nächste Folie">
+        <button onClick={forward} aria-label="Weiter">
           →
         </button>
         <button onClick={() => setOverview((o) => !o)}>Übersicht</button>

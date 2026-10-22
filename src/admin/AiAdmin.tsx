@@ -10,22 +10,55 @@ export function AiAdmin({ projectId, aiConfigured }: { projectId: string; aiConf
   const [busy, setBusy] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
+  const [selected, setSelected] = useState<Set<string> | null>(null);
 
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p className="muted">Wird geladen …</p>;
 
   const store = (key: string, s: StoredSummary) => setData({ ...data, summaries: { ...data.summaries, [key]: s } });
 
-  const generate = async (key: string) => {
+  const generateOne = async (key: string): Promise<StoredSummary> => {
     setBusy(key);
+    const s = await api.post<StoredSummary>(`/api/admin/projects/${projectId}/ai/${key}`);
+    store(key, s);
+    return s;
+  };
+
+  const generate = async (key: string) => {
     setMsg('');
     try {
-      store(key, await api.post<StoredSummary>(`/api/admin/projects/${projectId}/ai/${key}`));
+      await generateOne(key);
     } catch (e) {
       setMsg(errorText(e));
     } finally {
       setBusy(null);
     }
+  };
+
+  const targets = data.survey.aiTargets;
+  const sel = selected ?? new Set(targets.map((t) => t.key));
+  const toggle = (key: string) => {
+    const next = new Set(sel);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    setSelected(next);
+  };
+
+  /** Free-text clusters first, synthesis last – it builds on the cluster results. */
+  const generateSelected = async () => {
+    setMsg('');
+    const order = [...targets.filter((t) => t.mode === 'clusters'), ...targets.filter((t) => t.mode === 'synthesis')].filter((t) => sel.has(t.key));
+    const failed: string[] = [];
+    for (const t of order) {
+      try {
+        // store() updates local state; the synthesis reads the saved clusters on the server
+        await generateOne(t.key);
+      } catch (e) {
+        failed.push(`${t.label}: ${errorText(e)}`);
+      }
+    }
+    setBusy(null);
+    if (failed.length) setMsg(failed.join(' · '));
   };
 
   return (
@@ -36,8 +69,21 @@ export function AiAdmin({ projectId, aiConfigured }: { projectId: string; aiConf
         erzeugen Sie sie deshalb zuletzt.
       </p>
       {!aiConfigured && <div className="warn-box">ANTHROPIC_API_KEY ist auf dem Server nicht gesetzt – Zusammenfassungen können nicht erzeugt werden.</div>}
+      <div className="card row">
+        <b>Mehrere auf einmal:</b>
+        {targets.map((t) => (
+          <label key={t.key} className="check">
+            <input type="checkbox" checked={sel.has(t.key)} onChange={() => toggle(t.key)} disabled={busy !== null} />
+            {t.label}
+          </label>
+        ))}
+        <span className="spacer" />
+        <button className="btn primary" disabled={!aiConfigured || busy !== null || sel.size === 0} onClick={() => void generateSelected()}>
+          {busy ? `Erstellt: ${targets.find((t) => t.key === busy)?.label ?? ''} …` : `Ausgewählte erzeugen (${sel.size})`}
+        </button>
+      </div>
       {msg && <p className="error">{msg}</p>}
-      {data.survey.aiTargets.map((t) => {
+      {targets.map((t) => {
         const s = data.summaries[t.key];
         const textCount = t.questions.reduce((a, q) => a + (data.results.questions[q]?.n ?? 0), 0);
         return (
@@ -72,7 +118,7 @@ export function AiAdmin({ projectId, aiConfigured }: { projectId: string; aiConf
                   }}
                 />
               ) : (
-                <SummaryView stored={s} names={data.names} showNames />
+                <SummaryView stored={s} />
               )}
             </div>
           </div>

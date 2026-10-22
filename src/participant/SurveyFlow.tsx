@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { api, ApiError, errorText } from '../api';
 import { navigate } from '../router';
-import { fillPlaceholders, isAnswered } from '../../shared/validate';
+import { fillPlaceholders, isAnswered, visibleQuestions } from '../../shared/validate';
 import { formatAnswer } from '../../shared/format';
 import type { AnswerMap, AnswerValue, Question, SurveyDefinition } from '../../shared/types';
 import { QuestionInput } from './QuestionInput';
+import { PersonalProfile } from './PersonalProfile';
 
 interface Session {
   participant: { name: string; company: string; func: string; workshop: boolean; confirmed: boolean; completed: boolean };
@@ -41,7 +42,7 @@ export function SurveyFlow() {
         // Everyone sees the welcome screen (incl. the non-anonymity note) before the first answer
         else if (!s.participant.confirmed || Object.keys(s.answers).length === 0) setStep('welcome');
         else {
-          const first = s.survey.questions.findIndex((q) => s.answers[q.id] === undefined);
+          const first = visibleQuestions(s.survey, s.answers).findIndex((q) => s.answers[q.id] === undefined);
           setStep(first === -1 ? 'summary' : first);
         }
       })
@@ -113,7 +114,7 @@ export function SurveyFlow() {
   if (!session) return <Shell>{null}</Shell>;
 
   const { survey, participant, project } = session;
-  const qs = survey.questions;
+  const qs = visibleQuestions(survey, answers);
   const locked = project.locked;
   const titleOf = (q: Question) => fillPlaceholders(!participant.workshop && q.titleNonWorkshop ? q.titleNonWorkshop : q.title, vars);
   const go = async (s: Step) => {
@@ -189,6 +190,7 @@ export function SurveyFlow() {
             <p style={{ fontSize: 17 }}>
               {locked ? 'Die Umfrage ist abgeschlossen. Vielen Dank für Ihre Teilnahme.' : fillPlaceholders(survey.outro.text, vars)}
             </p>
+            <PersonalProfile survey={survey} answers={answers} />
           </div>
         ) : (
           <div className="stack" style={{ marginBottom: 20 }}>
@@ -272,6 +274,7 @@ export function SurveyFlow() {
         <h1 className="p-q" id={`q-${q.id}`}>
           {titleOf(q)}
         </h1>
+        {block?.intro && (idx === 0 || qs[idx - 1]?.block !== q.block) && <div className="note" style={{ marginBottom: 14 }}>{block.intro}</div>}
         {q.help ? <p className="p-help">{q.help}</p> : <div style={{ height: 14 }} />}
         <QuestionInput q={q} survey={survey} value={answers[q.id]} disabled={locked} onChange={(v, d) => change(q.id, v, d)} />
         {saveState === 'error' && <p className="error">{saveError}</p>}
