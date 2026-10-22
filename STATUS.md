@@ -13,7 +13,8 @@
 - [x] KI-Zusammenfassung Freitexte (Claude Opus 5.5, Namen vorher entfernt, editierbar) – **nur mit Mock getestet**, Live-Test steht aus
 - [x] Test mit Fake-Daten (`npm run seed:fake`), 42 Vitest-Tests grün, Docker-Image lokal gebaut und gestartet
 - [ ] Review der Präsentation mit Thomas
-- [ ] Deploy auf Coolify (`umfrage.stratpool.pro`) – siehe DEPLOYMENT.md
+- [x] Deploy auf Coolify (2026-10-22), Health-Check ok – siehe DEPLOYMENT.md
+- [ ] Smoke-Test in Produktion: Admin-Login, Testprojekt, Teilnehmer-Durchlauf am Handy, KI-Zusammenfassung, Testprojekt löschen
 - [ ] Live-Test KI-Zusammenfassung mit echtem `ANTHROPIC_API_KEY` (Demo-Projekt)
 - [ ] Echte Teilnehmer importiert, Einladung verschickt
 
