@@ -10,7 +10,7 @@
 4. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
 5. Danach: offene Entscheidungen unten klären → echte Teilnehmer importieren → Einladung
 
-Letzter Arbeitsstand (2026-10-22): v0.4 vollständig umgesetzt, Abgleich mit Vertrag/Angebot erledigt (siehe unten), 54 Tests grün, CI grün, alle 21 Folien headless geprüft. Keine uncommitteten Änderungen.
+Letzter Arbeitsstand (2026-10-22): v0.5 vollständig umgesetzt (inkl. AI Literacy C4/C5, am Handy geprüft), Abgleich mit Vertrag/Angebot erledigt (siehe unten), 54 Tests grün, alle 22 Folien headless geprüft. Anonym-Modus nur als Reminder notiert, nicht gebaut. Keine uncommitteten Änderungen.
 
 ## Stand
 - [x] Briefing, Projekt-CLAUDE.md, Fragebogen-Entwurf v0.1 (aus Claude-Session übergeben)
