@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { aggregateAll, type ResultRow } from '../shared/aggregate.js';
 import { pseudonymize } from '../shared/pseudonymize.js';
 import type { AiTarget, SurveyDefinition } from '../shared/types.js';
+import { neutralTitle } from '../shared/validate.js';
 import type { AiSummary, ClusterSummary, StoredSummary, SynthesisSummary } from '../shared/ai-types.js';
 
 export type { AiSummary };
@@ -93,7 +94,7 @@ export async function summarizeClusters(
   if (answers.length === 0) return { mode: 'clusters', answerCount: 0, themes: [], keyStatements: [] };
 
   const questionTitles = target.questions
-    .map((id) => survey.questions.find((q) => q.id === id)?.title ?? id)
+    .map((id) => neutralTitle(survey.questions.find((q) => q.id === id)?.title ?? id))
     .join(' / ');
   const prompt = `Frage an die Teilnehmenden: „${questionTitles}“
 

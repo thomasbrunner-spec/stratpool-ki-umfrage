@@ -155,6 +155,26 @@ describe('maturity, cobweb and leadership split', () => {
     expect(split.groups[0]!.cobweb.dims[0]).toMatchObject({ id: 'D1', now: 3, target: 5, gap: 2 });
     expect(split.groups[1]!.cobweb.dims[0]).toMatchObject({ now: 1.5, target: 3 });
   });
+
+  it('splits the cobweb by company, largest company first', () => {
+    const rows = [
+      row({ D1: { now: 4, target: 5 } }, { company: 'DrehTech' }),
+      row({ D1: { now: 1, target: 3 } }, { company: 'HumanTech Spine' }),
+      row({ D1: { now: 3, target: 3 } }, { company: 'HumanTech Spine' }),
+      row({ D1: { now: 2, target: 2 } }, { company: '' }),
+    ];
+    const all = aggregateAll(survey, rows, {});
+    const key = widgetKey({ kind: 'cobweb_split', qs: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'], by: 'company' });
+    const split = all.derived[key] as CobwebSplitResult;
+    expect(split.groups.map((g) => [g.label, g.n])).toEqual([
+      ['HumanTech Spine', 2],
+      ['DrehTech', 1],
+      ['ohne Angabe', 1],
+    ]);
+    expect(split.groups[0]!.cobweb.dims[0]).toMatchObject({ now: 2, target: 3 });
+    // leadership and company split of the same questions must not share a cache key
+    expect(key).not.toBe(widgetKey({ kind: 'cobweb_split', qs: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'] }));
+  });
 });
 
 describe('hero, FTE, use cases and pilots', () => {

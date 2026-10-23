@@ -153,6 +153,9 @@ participantRouter.get('/session', requireParticipant, (req, res) => {
   if (s) res.json(sessionPayload(s.part, s.project));
 });
 
+// Submitted answers are final; the admin can reopen a participant if a change is needed.
+const SUBMITTED_ERROR = 'Ihre Antworten sind bereits abgesendet und können nicht mehr geändert werden.';
+
 const Profile = z.object({
   name: z.string().trim().min(2).max(120),
   company: z.string().trim().max(120),
@@ -167,6 +170,10 @@ participantRouter.put('/profile', requireParticipant, (req, res) => {
     res.status(400).json({ error: 'Bitte Name, Gesellschaft und Funktion angeben.' });
     return;
   }
+  if (s.part.completed_at) {
+    res.status(423).json({ error: SUBMITTED_ERROR });
+    return;
+  }
   db.prepare(
     `UPDATE participants SET name = ?, company = ?, func = ?, confirmed_at = COALESCE(confirmed_at, datetime('now')) WHERE id = ?`,
   ).run(body.data.name, body.data.company, body.data.func, s.part.id);
@@ -178,6 +185,10 @@ participantRouter.put('/answers/:qid', requireParticipant, (req, res) => {
   if (!s) return;
   if (isLocked(s.project)) {
     res.status(423).json({ error: 'Die Umfrage ist abgeschlossen. Antworten können nicht mehr geändert werden.' });
+    return;
+  }
+  if (s.part.completed_at) {
+    res.status(423).json({ error: SUBMITTED_ERROR });
     return;
   }
   const survey = getSurvey(s.project.survey_id);

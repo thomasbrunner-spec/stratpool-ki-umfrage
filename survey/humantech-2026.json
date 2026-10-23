@@ -1,10 +1,10 @@
 {
   "id": "humantech-2026",
-  "version": "0.5",
-  "title": "KI bei HumanTech – Ihre Sicht zählt.",
+  "version": "0.6",
+  "title": "KI in der HumanTech Group – Ihre Sicht zählt.",
   "intro": {
-    "title": "KI bei HumanTech – Ihre Sicht zählt.",
-    "text": "Am {{workshopDate}} erarbeiten wir gemeinsam im Workshop, wo KI bei HumanTech Spine den größten Nutzen stiftet. Ihre Antworten bilden die Grundlage für die Agenda. Die Umfrage dauert ca. 12 Minuten. Sie können jederzeit unterbrechen und später weitermachen. Es gibt keine falschen Antworten, eine ehrliche Einschätzung hilft uns am meisten.",
+    "title": "KI in der HumanTech Group – Ihre Sicht zählt.",
+    "text": "Am {{workshopDate}} erarbeiten wir gemeinsam im Workshop, wo KI in der HumanTech Group den größten Nutzen stiftet. Ihre Antworten bilden die Grundlage für die Agenda. Die Umfrage dauert ca. 12 Minuten. Sie können jederzeit unterbrechen und später weitermachen. Es gibt keine falschen Antworten, eine ehrliche Einschätzung hilft uns am meisten.",
     "note": "Hinweis: Die Antworten werden mit Ihrem Namen gespeichert und nur von den ERA-Moderatoren ausgewertet. Im Workshop zeigen wir zusammengefasste Ergebnisse."
   },
   "outro": {
@@ -42,7 +42,7 @@
     {
       "id": "D",
       "title": "Reifegrad",
-      "intro": "Jetzt geht es um HumanTech als Ganzes. Für sieben Bereiche: Wo stehen wir heute – und wo sollten wir in drei Jahren stehen? Bauchgefühl genügt."
+      "intro": "Jetzt geht es um Ihre Gesellschaft ({{company}}). Für sieben Bereiche: Wo steht sie heute – und wo sollte sie in drei Jahren stehen? Bauchgefühl genügt."
     },
     {
       "id": "E",
@@ -482,7 +482,7 @@
       "short": "Reifegrad: Geschäftsmodell & Strategie",
       "dimension": "Geschäftsmodell & Strategie",
       "anchor": "Gibt es Ziele und Budget für KI? Ist KI Teil der Unternehmensstrategie?",
-      "title": "Geschäftsmodell & Strategie: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "title": "Geschäftsmodell & Strategie: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Erste Überlegungen zur KI-Nutzung, keine klare Strategie.",
         "Entwicklung erster KI-Strategien, Pilotprojekte, erste Überlegungen zur Transformation des Geschäftsmodells.",
@@ -501,7 +501,7 @@
       "short": "Reifegrad: Organisation & Prozesse",
       "dimension": "Organisation & Prozesse",
       "anchor": "Gibt es Verantwortliche und einen Ablauf, um neue KI-Anwendungen zu prüfen und freizugeben?",
-      "title": "Organisation & Prozesse: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "title": "Organisation & Prozesse: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Keine organisatorische Verankerung von KI.",
         "Erste organisatorische Strukturen und Prozesse für KI-Projekte.",
@@ -520,7 +520,7 @@
       "short": "Reifegrad: Menschen & Kultur",
       "dimension": "Menschen & Kultur",
       "anchor": "Schulungen, AI-Literacy-Nachweise nach EU AI Act, Offenheit im Team",
-      "title": "Menschen & Kultur: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "title": "Menschen & Kultur: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Geringes Bewusstsein und geringe KI-Kenntnisse.",
         "Erste Schulungen und Sensibilisierung für KI.",
@@ -538,8 +538,8 @@
       "required": true,
       "short": "Reifegrad: Technologie & Daten",
       "dimension": "Technologie & Daten",
-      "anchor": "Copilot/M365, Zugriff auf QM-Dokumente und Daten, Schnittstellen zu ERP und Ablagen",
-      "title": "Technologie & Daten: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "anchor": "Copilot/M365, Zugriff auf Dokumente und Daten, Schnittstellen zu ERP, Ablagen und Maschinen",
+      "title": "Technologie & Daten: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Grundlegende IT-Infrastruktur, ohne KI-Ausrichtung.",
         "Erste spezifische Technologien und Datenstrukturen für KI.",
@@ -557,8 +557,8 @@
       "required": true,
       "short": "Reifegrad: Prozesse & Kunden",
       "dimension": "Prozesse & Kunden",
-      "anchor": "KI in kundennahen Abläufen: Angebote, Anfragen von Kliniken und Chirurgen, Reklamationen",
-      "title": "Prozesse & Kunden: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "anchor": "KI in kundennahen Abläufen: Angebote, Kundenanfragen, Reklamationen",
+      "title": "Prozesse & Kunden: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Keine Nutzung von KI in Prozessen oder der Kundeninteraktion.",
         "Erste Pilotprojekte zur Prozessautomatisierung und Kundeninteraktion.",
@@ -577,7 +577,7 @@
       "short": "Reifegrad: Recht & Ethik",
       "dimension": "Recht & Ethik",
       "anchor": "KI-Richtlinie, Verantwortung für KI-Ergebnisse, Kennzeichnung",
-      "title": "Recht & Ethik: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "title": "Recht & Ethik: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Kaum Berücksichtigung von rechtlichen und ethischen Fragen.",
         "Erste Überlegungen zu Compliance, Datenschutz und Ethik.",
@@ -595,8 +595,8 @@
       "required": true,
       "short": "Reifegrad: Datenschutz & Compliance",
       "dimension": "Datenschutz & Compliance",
-      "anchor": "DSGVO, Validierung von KI-Software im QMS (ISO 13485, 4.1.6), MDR-Anforderungen",
-      "title": "Datenschutz & Compliance: Wo steht HumanTech heute – und wo sollte es in drei Jahren stehen?",
+      "anchor": "DSGVO, Validierung von KI-Software im QMS (z. B. ISO 13485), branchenspezifische Vorgaben (z. B. MDR)",
+      "title": "Datenschutz & Compliance: Wo steht {{company}} heute – und wo sollte die Gesellschaft in drei Jahren stehen?",
       "descriptions": [
         "Keine Berücksichtigung von Datenschutz und Compliance.",
         "Erste Auseinandersetzung mit Datenschutzanforderungen.",
@@ -613,7 +613,7 @@
       "scale": "ainative",
       "required": true,
       "short": "Zielbild in drei Jahren",
-      "title": "Welches Betriebsmodell ist für HumanTech in drei Jahren das richtige?",
+      "title": "Welches Betriebsmodell ist für die HumanTech Group in drei Jahren das richtige?",
       "help": "Die sieben Stufen beschreiben den Weg von „KI ist kein Thema“ bis zu einem Unternehmen, das sich um KI herum organisiert."
     },
     {
@@ -623,7 +623,7 @@
       "budget": 10,
       "required": true,
       "short": "Wo KI zuerst ansetzen soll",
-      "title": "Wo sollte KI bei HumanTech als Erstes ansetzen? Verteilen Sie 10 Punkte.",
+      "title": "Wo sollte KI in der HumanTech Group als Erstes ansetzen? Verteilen Sie 10 Punkte.",
       "help": "Mehr Punkte = höhere Priorität. Sie können alle Punkte auf einen Bereich setzen oder verteilen.",
       "options": [
         {
@@ -648,11 +648,11 @@
         },
         {
           "id": "produktion",
-          "label": "Produktion & Fertigung (Arbeitsanweisungen, Prüf- und Chargendokumentation)"
+          "label": "Produktion & Fertigung (Arbeitspläne, CNC-Programmierung, Prüf- und Chargendokumentation)"
         },
         {
           "id": "vertrieb",
-          "label": "Vertrieb, Angebote & Kundenkommunikation"
+          "label": "Vertrieb, Angebote & Kalkulation, Kundenkommunikation"
         },
         {
           "id": "marketing",
@@ -684,7 +684,7 @@
       "maxLength": 400,
       "short": "Use-Case-Steckbrief",
       "title": "Welche Aufgabe in Ihrem Arbeitsalltag kostet Sie am meisten Zeit und könnte durch KI unterstützt werden?",
-      "placeholder": "z. B. Literaturrecherche für die klinische Bewertung",
+      "placeholder": "z. B. Literaturrecherche, Angebotskalkulation oder Auswertung von Prüfprotokollen",
       "hoursLabel": "Wie viel Zeit kostet Sie diese Aufgabe pro Woche?",
       "hoursMax": 20,
       "hoursStep": 0.5,
@@ -784,7 +784,7 @@
         },
         {
           "id": "regulatorik",
-          "label": "regulatorische Unsicherheit (MDR, ISO 13485)"
+          "label": "regulatorische Unsicherheit (z. B. MDR, ISO 13485)"
         },
         {
           "id": "nichts",
@@ -805,7 +805,7 @@
       "scale": "ampel",
       "viz": "ampel",
       "required": true,
-      "naLabel": "weiß nicht",
+      "naLabel": "weiß nicht / betrifft mich nicht",
       "short": "KI-Ampel",
       "title": "Wie weit darf KI bei diesen Aufgaben gehen?",
       "help": "Grün: KI darf selbstständig vorbereiten · Gelb: nur mit fachlicher Prüfung · Rot: gar nicht",
@@ -816,23 +816,27 @@
         },
         {
           "id": "uebersetzen",
-          "label": "Gebrauchsanweisungen und Dokumente übersetzen"
+          "label": "Dokumente übersetzen (z. B. Gebrauchsanweisungen, Lieferantenkorrespondenz)"
         },
         {
           "id": "literatur",
-          "label": "Literatur für die klinische Bewertung auswerten"
+          "label": "Fachliteratur und Normen auswerten"
         },
         {
           "id": "capa",
-          "label": "CAPA- und Reklamationsanalysen vorbereiten"
+          "label": "Reklamationen und Abweichungen analysieren (CAPA, 8D)"
         },
         {
           "id": "mdr",
-          "label": "Technische Dokumentation (MDR) erstellen oder aktualisieren"
+          "label": "Technische Dokumentation erstellen oder aktualisieren (z. B. MDR-Akte, Prüfpläne)"
+        },
+        {
+          "id": "arbeitsanweisungen",
+          "label": "Arbeitsanweisungen und Prüfprotokolle erstellen"
         },
         {
           "id": "lieferanten",
-          "label": "Lieferanten- und Angebotsvergleiche"
+          "label": "Angebote und Lieferanten vergleichen"
         },
         {
           "id": "bewerbungen",
@@ -956,7 +960,7 @@
     {
       "id": "s-title",
       "eyebrow": "Vorab-Befragung",
-      "title": "KI bei HumanTech – Ergebnisse der Befragung",
+      "title": "KI in der HumanTech Group – Ergebnisse der Befragung",
       "widgets": [
         {
           "kind": "participation"
@@ -1050,6 +1054,26 @@
             "D6",
             "D7"
           ]
+        }
+      ]
+    },
+    {
+      "id": "s-split-company",
+      "eyebrow": "Reifegrad",
+      "title": "Gesellschaften im Vergleich",
+      "widgets": [
+        {
+          "kind": "cobweb_split",
+          "qs": [
+            "D1",
+            "D2",
+            "D3",
+            "D4",
+            "D5",
+            "D6",
+            "D7"
+          ],
+          "by": "company"
         }
       ]
     },

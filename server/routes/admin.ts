@@ -353,6 +353,14 @@ adminRouter.delete('/participants/:pid/answers', (req, res) => {
   res.json({ ok: true });
 });
 
+/** Lets a participant change answers again after submitting (status goes back to "started"). */
+adminRouter.post('/participants/:pid/reopen', (req, res) => {
+  const part = participantOr404(req, res);
+  if (!part) return;
+  db.prepare('UPDATE participants SET completed_at = NULL WHERE id = ?').run(part.id);
+  res.json({ ok: true });
+});
+
 adminRouter.post('/participants/:pid/token', (req, res) => {
   const part = participantOr404(req, res);
   if (!part) return;

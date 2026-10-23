@@ -27,6 +27,7 @@ import {
   pct,
 } from '../charts/Viz';
 import type { ResultsResponse } from './types';
+import { neutralTitle } from '../../shared/validate';
 
 export function useResults(projectId: string, filter: ResultFilter) {
   const [data, setData] = useState<ResultsResponse | null>(null);
@@ -100,6 +101,7 @@ export function FilterBar({ data, filter, setFilter }: { data: ResultsResponse; 
 
 export const BLUE = '#6DA7EC';
 export const ORANGE = '#FD9A00';
+const SPLIT_COLORS = [ORANGE, BLUE, '#C6D6E6'];
 
 /** Renders one deck widget (shared by dashboard and presentation). */
 export function WidgetViz({
@@ -152,26 +154,32 @@ export function WidgetViz({
     case 'cobweb_split': {
       const sp = derived as CobwebSplitResult | undefined;
       if (!sp) return null;
+      const byCompany = w.by === 'company';
       const small = sp.groups.filter((g) => g.n < minN);
-      if (small.length) {
+      // leadership vs. team needs both groups; companies below the minimum are left out
+      const shown = byCompany ? sp.groups.filter((g) => g.n >= minN) : small.length ? [] : sp.groups;
+      if (shown.length < 2) {
         return (
           <p className="empty">
             Zu wenige Antworten für einen Vergleich ({sp.groups.map((g) => `${g.label}: ${g.n}`).join(', ')}; Minimum {minN} je Gruppe).
           </p>
         );
       }
-      const layers = sp.groups.map((g, i) => ({
+      const layers = shown.map((g, i) => ({
         label: `${g.label} (n = ${g.n})`,
-        color: i === 0 ? ORANGE : BLUE,
+        color: SPLIT_COLORS[i % SPLIT_COLORS.length]!,
         values: g.cobweb.dims.map((d) => d.now),
-        dashed: i === 1,
+        dashed: i % 2 === 1,
       }));
+      const hidden = byCompany ? sp.groups.filter((g) => g.n > 0 && g.n < minN) : [];
       return (
         <div className="cobweb-wrap">
-          <Cobweb labels={sp.groups[0]!.cobweb.dims.map((d) => d.label)} layers={layers} size={large ? 'large' : 'normal'} />
+          <Cobweb labels={shown[0]!.cobweb.dims.map((d) => d.label)} layers={layers} size={large ? 'large' : 'normal'} />
           <CobwebLegend layers={layers} />
           <p className="small muted" style={{ textAlign: 'center', margin: 0 }}>
-            Reifegrad heute · Führung = Geschäftsführung und Abteilungsleitungen
+            {byCompany
+              ? `Reifegrad heute, jeweils für die eigene Gesellschaft bewertet${hidden.length ? ` · nicht gezeigt (unter ${minN} Antworten): ${hidden.map((g) => g.label).join(', ')}` : ''}`
+              : 'Reifegrad heute · Führung = Geschäftsführung und Abteilungsleitungen'}
           </p>
         </div>
       );
@@ -325,7 +333,7 @@ export function Dashboard({ projectId }: { projectId: string }) {
           .filter((w, i, all) => all.findIndex((x) => JSON.stringify(x) === JSON.stringify(w)) === i)
           .map((w, i) => (
             <div className="viz-card" key={`d${i}`} style={w.kind === 'usecase_map' || w.kind === 'gaps' ? { gridColumn: '1 / -1' } : undefined}>
-              <h3>{DERIVED_TITLES[w.kind]}</h3>
+              <h3>{w.kind === 'cobweb_split' && w.by === 'company' ? 'Gesellschaften im Vergleich' : DERIVED_TITLES[w.kind]}</h3>
               <div className="sub">Abgeleitete Auswertung</div>
               <WidgetViz w={w} data={data} showNames />
             </div>
@@ -339,7 +347,7 @@ export function Dashboard({ projectId }: { projectId: string }) {
                 {i + 1}. {q.short}
               </h3>
               <div className="sub">
-                {q.title} · n = {r.n}
+                {neutralTitle(q.title)} · n = {r.n}
               </div>
               <QuestionViz q={q} survey={survey} result={r} names={data.names} showNames large={q.type === 'grid'} />
             </div>

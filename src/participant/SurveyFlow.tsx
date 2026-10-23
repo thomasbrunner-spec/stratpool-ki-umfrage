@@ -100,7 +100,11 @@ export function SurveyFlow() {
   };
 
   const vars = useMemo(
-    () => ({ workshopDate: fmtDate(session?.project.workshopDate ?? null), deadline: fmtDate(session?.project.deadline ?? null) }),
+    () => ({
+      workshopDate: fmtDate(session?.project.workshopDate ?? null),
+      deadline: fmtDate(session?.project.deadline ?? null),
+      company: session?.participant.company || 'Ihre Gesellschaft',
+    }),
     [session],
   );
 
@@ -218,7 +222,7 @@ export function SurveyFlow() {
                   </div>
                   <div className="a">{text || (miss ? 'Noch nicht beantwortet' : '—')}</div>
                 </div>
-                {!locked && (
+                {!completed && !locked && (
                   <button
                     className="btn small ghost"
                     onClick={() => {
@@ -241,7 +245,7 @@ export function SurveyFlow() {
               {missing.length ? `Noch ${missing.length} offen` : 'Antworten absenden'}
             </button>
           )}
-          {completed && !locked && <span className="small muted">Änderungen werden automatisch gespeichert.</span>}
+          {completed && !locked && <span className="small muted">Antworten abgesendet. Für Änderungen wenden Sie sich bitte an das ERA-Team.</span>}
         </Nav>
         {submitError && <p className="error">{submitError}</p>}
       </Shell>
@@ -274,9 +278,9 @@ export function SurveyFlow() {
         <h1 className="p-q" id={`q-${q.id}`}>
           {titleOf(q)}
         </h1>
-        {block?.intro && (idx === 0 || qs[idx - 1]?.block !== q.block) && <div className="note" style={{ marginBottom: 14 }}>{block.intro}</div>}
+        {block?.intro && (idx === 0 || qs[idx - 1]?.block !== q.block) && <div className="note" style={{ marginBottom: 14 }}>{fillPlaceholders(block.intro, vars)}</div>}
         {q.help ? <p className="p-help">{q.help}</p> : <div style={{ height: 14 }} />}
-        <QuestionInput q={q} survey={survey} value={answers[q.id]} disabled={locked} onChange={(v, d) => change(q.id, v, d)} />
+        <QuestionInput q={{ ...q, title: titleOf(q) }} survey={survey} value={answers[q.id]} disabled={locked || participant.completed} onChange={(v, d) => change(q.id, v, d)} />
         {saveState === 'error' && <p className="error">{saveError}</p>}
         <Nav>
           <button type="button" className="btn ghost" onClick={() => void go(idx === 0 ? 'profile' : idx - 1)}>

@@ -58,6 +58,12 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
     reload();
   };
 
+  const reopen = async (p: ParticipantView) => {
+    await api.post(`/api/admin/participants/${p.id}/reopen`);
+    show(`${p.name} kann die Antworten wieder ändern`);
+    reload();
+  };
+
   const usesToken = project.accessMode !== 'password';
 
   return (
@@ -136,6 +142,15 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
                       <button className="btn small" disabled={p.status === 'invited'} onClick={() => setModal({ answers: p })}>
                         Antworten
                       </button>
+                      {p.status === 'completed' && (
+                        <button
+                          className="btn small ghost"
+                          title="Abgesendete Antworten sind gesperrt. Wieder öffnen erlaubt der Person, sie zu ändern und erneut abzusenden."
+                          onClick={() => void reopen(p)}
+                        >
+                          Wieder öffnen
+                        </button>
+                      )}
                       <button
                         className={`btn small ${confirmReset === p.id ? 'danger' : 'ghost'}`}
                         disabled={p.status === 'invited'}

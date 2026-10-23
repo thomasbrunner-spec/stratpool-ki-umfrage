@@ -544,7 +544,7 @@ export function widgetKey(w: Widget): string {
     case 'blindspots':
       return `cobweb:${w.qs.join(',')}`;
     case 'cobweb_split':
-      return `split:${w.qs.join(',')}`;
+      return `split:${w.by ?? 'leader'}:${w.qs.join(',')}`;
     case 'hero':
       return `hero:${w.q}:${w.options.join(',')}`;
     case 'hero_fte':
@@ -557,6 +557,18 @@ export function widgetKey(w: Widget): string {
 }
 
 export const LEADERSHIP_LABELS = ['Führung (GF/AL)', 'Team'] as const;
+
+/** Groups for the cobweb comparison: leadership vs. team, or one group per company. */
+export function splitGroups(rows: ResultRow[], by: 'leader' | 'company'): { label: string; rows: ResultRow[] }[] {
+  if (by === 'leader') {
+    return [
+      { label: LEADERSHIP_LABELS[0], rows: rows.filter((r) => r.participant.leader) },
+      { label: LEADERSHIP_LABELS[1], rows: rows.filter((r) => !r.participant.leader) },
+    ];
+  }
+  const companies = [...new Set(rows.map((r) => r.participant.company || 'ohne Angabe'))];
+  return companies.map((c) => ({ label: c, rows: rows.filter((r) => (r.participant.company || 'ohne Angabe') === c) }));
+}
 
 export function aggregateAll(survey: SurveyDefinition, allRows: ResultRow[], filter: ResultFilter): SurveyResults {
   const inFilter = applyFilter(allRows, filter);
@@ -587,15 +599,12 @@ export function aggregateAll(survey: SurveyDefinition, allRows: ResultRow[], fil
         derived[key] = aggregateCobweb(survey, w.qs, rows);
         break;
       case 'cobweb_split': {
-        const leaders = rows.filter((r) => r.participant.leader);
-        const team = rows.filter((r) => !r.participant.leader);
-        const groups = [
-          { label: LEADERSHIP_LABELS[0], rows: leaders },
-          { label: LEADERSHIP_LABELS[1], rows: team },
-        ].map((g) => {
+        const groups = splitGroups(rows, w.by ?? 'leader').map((g) => {
           const cobweb = aggregateCobweb(survey, w.qs, g.rows);
           return { label: g.label, n: cobweb.n, cobweb };
         });
+        // companies: the one with the most maturity ratings comes first
+        if (w.by === 'company') groups.sort((a, b) => b.n - a.n || a.label.localeCompare(b.label, 'de'));
         derived[key] = { groups };
         break;
       }

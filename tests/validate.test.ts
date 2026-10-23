@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import surveyJson from '../survey/humantech-2026.json';
-import { fillPlaceholders, isAnswered, isVisible, missingRequired, validateAnswer } from '../shared/validate';
+import { fillPlaceholders, neutralTitle, isAnswered, isVisible, missingRequired, validateAnswer } from '../shared/validate';
 import type { Question, SurveyDefinition } from '../shared/types';
 
 const survey = surveyJson as unknown as SurveyDefinition;
@@ -114,5 +114,12 @@ describe('completeness', () => {
     expect(fillPlaceholders('Am {{workshopDate}} bis {{deadline}}', { workshopDate: '12.11.2026' })).toBe(
       'Am 12.11.2026 bis [noch offen]',
     );
+  });
+
+  it('inserts the participant company into maturity titles and neutralises it elsewhere', () => {
+    const title = q('D1').title;
+    expect(fillPlaceholders(title, { company: 'DrehTech' })).toContain('Wo steht DrehTech heute');
+    expect(neutralTitle(title)).toContain('Wo steht die eigene Gesellschaft heute');
+    expect(neutralTitle(title)).not.toContain('{{');
   });
 });

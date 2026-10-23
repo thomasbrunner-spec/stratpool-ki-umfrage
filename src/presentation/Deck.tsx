@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { widgetKey, type CobwebResult, type QuestionResult } from '../../shared/aggregate';
 import type { DeckSlide, ResultFilter, Widget } from '../../shared/types';
+import { neutralTitle } from '../../shared/validate';
 import { navigate } from '../router';
 import { num, pct } from '../charts/Viz';
 import { SummaryView } from '../charts/AiViews';
@@ -92,7 +93,7 @@ function widgetTitle(w: Widget, data: ResultsResponse): string {
     case 'question': {
       const q = data.survey.questions.find((x) => x.id === w.q);
       // the AI-Native stairs carry their own labels; the slide title says enough
-      return q?.type === 'stairs' ? '' : (q?.title ?? '');
+      return q?.type === 'stairs' ? '' : neutralTitle(q?.title ?? '');
     }
     case 'depth':
       return 'Nutzungstiefe: höchste erreichte Stufe je Person';

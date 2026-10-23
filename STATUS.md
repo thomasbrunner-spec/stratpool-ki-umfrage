@@ -1,19 +1,17 @@
 # Projektstatus – stratpool-ki-umfrage
 
-> Wiedereinstiegspunkt für die nächste Session. Stand: **2026-10-22**
+> Wiedereinstiegspunkt für die nächste Session. Stand: **2026-10-23**
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
 
 ## Nächste Session – hier weitermachen
-1. Thomas prüft die neu deployte **v0.5** (Coolify Auto-Deploy, letzter Code-Commit `1fa4467`): Teilnehmer-Durchlauf am Handy, Präsentation (22 Folien, neu: „Befähigung & Schulungsbedarf“, „neu“-Kennzeichen bei KI-Clustern)
-2. Testpersonen in Produktion über „Antworten löschen“ zurücksetzen (alte v0.3/v0.4-Antworten, C4/C5 fehlen sonst)
-3. KI-Zusammenfassung live testen: Admin → KI-Zusammenfassung → alle auswählen → „Ausgewählte erzeugen“ (braucht `ANTHROPIC_API_KEY` in Coolify); dabei prüfen, ob das „neu“-Kennzeichen (außerhalb Angebotshypothesen) plausibel gesetzt wird
-4. Ergebnis der externen Klärung abwarten (Datenschutz/Betriebsrat/Teilnehmerkreis, siehe unten) → danach entscheiden, ob der **Anonym-Modus** gebaut wird (Reminder unten; Thomas muss grobe Kategorien festlegen)
-5. Feedback von Thomas zu Präsentation, AI-Native-Stufentexten und Matrix-Labels einarbeiten
-6. Danach: offene Entscheidungen klären → echte Teilnehmer importieren → Einladung
+1. **v0.6 deployen** (Commit lokal, noch nicht gepusht) und in Produktion prüfen: Reifegrad-Fragen nennen die eigene Gesellschaft, neue Folie „Gesellschaften im Vergleich“ (23 Folien), Sperre nach dem Absenden, „Wieder öffnen“ im Admin
+2. **Produktiv-Projekt umstellen:** Zugang auf „gemeinsames Passwort“ (Selbstregistrierung, Entscheidung 2026-10-23), Gesellschaften pflegen: HumanTech Spine · DrehTech · HumanTech Solutions · HumanTech México · HumanTech Group
+3. **Offen durch Selbstregistrierung** (Entscheidung Thomas ausstehend, siehe „Offene Entscheidungen“): Führungsrolle und Workshop-Teilnahme werden nicht mehr erfasst
+4. Testpersonen über „Antworten löschen“ zurücksetzen, KI-Zusammenfassung live testen (`ANTHROPIC_API_KEY`)
+5. Externe Klärung Datenschutz/Betriebsrat/Teilnehmerkreis → danach Anonym-Modus entscheiden (Reminder unten)
+6. Danach: offene Entscheidungen klären → Einladungslink verschicken
 
-Qualitätseinschätzung (2026-10-22): 8/10 unter der Bedingung, dass Datenschutz geklärt ist; Hebel: Teilnehmerkreis erweitern (+0,5), Live-/Smoke-Test bestanden.
-
-Letzter Arbeitsstand (2026-10-22): v0.5 vollständig umgesetzt (inkl. AI Literacy C4/C5, am Handy geprüft), Abgleich mit Vertrag/Angebot erledigt (siehe unten), 54 Tests grün, alle 22 Folien headless geprüft. Anonym-Modus nur als Reminder notiert, nicht gebaut. Keine uncommitteten Änderungen.
+Letzter Arbeitsstand (2026-10-23): v0.6 nach Kunden-Feedback umgesetzt (siehe Stand), 56 Tests grün, D1 am Handy und neue Folie headless geprüft.
 
 ## Stand
 - [x] Briefing, Projekt-CLAUDE.md, Fragebogen-Entwurf v0.1 (aus Claude-Session übergeben)
@@ -22,6 +20,7 @@ Letzter Arbeitsstand (2026-10-22): v0.5 vollständig umgesetzt (inkl. AI Literac
 - [x] **v0.4 (Neukonzeption, freigegeben):** Koerting-Reifegrad als Kerninstrument mit Ist/Ziel je Dimension (7 Screens mit HumanTech-Ankern), AI-Native nur noch als Zielbild, Use-Case-Steckbrief (Aufgabe + Std. + Datenart), KI-Ampel, Copilot-Score (bedingt), Pilot-Bereitschaft, persönliches KI-Profil nach dem Absenden; 25 Fragen, ca. 12 Min.
 - [x] Präsentation v0.4: 21 Folien – Hero-Zahlen, Cobweb mit Aufbau Ist → Ziel, Lücken-Ranking, Führung vs. Team, blinde Flecken, Use-Case-Landkarte (Quick Wins), Zeitpotenzial in Vollzeitstellen, KI-Ampel, Piloten
 - [x] **v0.5:** AI Literacy ergänzt (C4 Weiterbildung bisher, C5 was hilft, max. 2) + Folie „Befähigung & Schulungsbedarf“ (22 Folien); KI-Cluster markieren Themen außerhalb der Angebotshypothesen als „neu“; Zeitpotenzial und Quick Wins vorsichtiger formuliert
+- [x] **v0.6 (Kunden-Feedback 2026-10-23, freigegeben):** „HumanTech Group“ in Begrüßung, E2, F1, Präsentationstitel; Reifegrad D1–D7 fragt nach der **eigenen Gesellschaft** (`{{company}}`), neue Folie „Gesellschaften im Vergleich“ (Gesellschaften unter Mindestgruppe ausgeblendet); Texte für DrehTech verallgemeinert (D4/D5/D7-Anker, F1 Produktion/Vertrieb, F2-Beispiel, G1); KI-Ampel mit 8 Aufgaben (neu: Arbeitsanweisungen und Prüfprotokolle), „weiß nicht / betrifft mich nicht“; **nach dem Absenden keine Änderungen mehr**, Admin kann je Person „Wieder öffnen“
 - [x] Admin: KI-Zusammenfassungen gesammelt erzeugen (Auswahl), Zitate immer ohne Namen, „Antworten löschen“ je Person
 - [x] Repo angelegt + Gerüst (Express 5/SQLite/React 19/Vite, TS strict, Dockerfile, CI)
 - [x] Teilnehmer-Flow (Einladungslink + Passwort/Selbstregistrierung, Profil, 1 Frage/Screen, Autosave, Zusammenfassung, Abschluss, Stichtag-Sperre)
@@ -59,6 +58,10 @@ Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schat
 - Optional: bestehende KI-Projekte/Assistenten im eigenen Bereich
 
 ## Offene Entscheidungen (Thomas)
+- **Folgen der Selbstregistrierung** (alle Teilnehmenden kommen über den Passwort-Link):
+  - „Führung vs. Team“ erkennt Abteilungsleitungen bisher nur über das CSV-Kürzel (GF/AL) → ohne CSV zählt nur „Geschäftsführung“. Vorschlag: Profilfeld „Haben Sie Führungsverantwortung?“ (ja/nein)
+  - Workshop-Teilnahme kam aus dem CSV → selbst Registrierte gelten als „nicht im Workshop“ (H1 bekommt den Nicht-Workshop-Text, Workshop-Rücklauf = 0). Vorschlag: Profilfeld „Nehmen Sie am Workshop am … teil?“ (ja/nein)
+  - Rücklauf je Person und persönliche Erinnerung entfallen; Erinnerung nur als Rundmail
 - Workshop-Termin und Stichtag (Feldzeit ≥ 10 Werktage + Erinnerung) → im Projekt eintragen, erscheinen in Begrüßung/Abschluss
 - Zugang: persönliche Links (empfohlen) oder gemeinsames Passwort – in den Projekteinstellungen umschaltbar
 - Subdomain final (`umfrage.stratpool.pro`?)
@@ -80,6 +83,8 @@ Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schat
 9. **Führung vs. Team:** „Führung“ = Bereich Geschäftsführung oder internes Rollen-Kürzel beginnt mit GF/AL (CSV-Spalte `kuerzel_funktion`). Vergleich erst ab Mindestgruppengröße je Gruppe.
 10. **Wechsel v0.3 → v0.4:** Antworten auf entfallene Fragen (B1, E1, D-Raster, G3, alte F2) bleiben in der DB, werden aber nirgends mehr ausgewertet. Testpersonen im Admin über „Antworten löschen“ zurücksetzen.
 11. **Slider:** Antwort wird auch beim Tippen auf die Startposition gespeichert (`onPointerUp`) – nicht entfernen, sonst bleibt „Weiter“ gesperrt.
+12. **Reifegrad je Gesellschaft:** D1–D7-Titel enthalten `{{company}}`. Im Teilnehmer-Flow wird die eigene Gesellschaft eingesetzt, in Admin/Präsentation/KI-Prompt `neutralTitle()` („die eigene Gesellschaft“). Neue Titel mit Platzhalter immer über diese Helfer anzeigen.
+13. **Gesperrt nach Absenden:** `PUT /api/p/answers` und `/profile` liefern 423, sobald `completed_at` gesetzt ist. Entsperren: Admin → Teilnehmende → „Wieder öffnen“.
 
 ## Lokal starten
 ```bash

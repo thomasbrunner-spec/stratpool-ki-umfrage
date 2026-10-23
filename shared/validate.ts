@@ -180,7 +180,12 @@ export function missingRequired(survey: SurveyDefinition, answers: AnswerMap): s
     .map((q) => q.id);
 }
 
-/** Replaces {{workshopDate}} / {{deadline}} placeholders in participant-facing texts. */
+/** Question titles outside the participant flow (admin, deck, AI prompts) have no single company to insert. */
+export function neutralTitle(text: string): string {
+  return text.replace(/\{\{company\}\}/g, 'die eigene Gesellschaft');
+}
+
+/** Replaces {{workshopDate}} / {{deadline}} / {{company}} placeholders in participant-facing texts. */
 export function fillPlaceholders(text: string, vars: Record<string, string | null | undefined>): string {
   return text.replace(/\{\{(\w+)\}\}/g, (_, k: string) => vars[k] || '[noch offen]');
 }

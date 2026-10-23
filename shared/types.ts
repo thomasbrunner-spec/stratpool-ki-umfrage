@@ -182,7 +182,8 @@ export type Widget =
   | { kind: 'participation' }
   /** Radar over maturity questions; 'build' reveals the target layer on the next key press */
   | { kind: 'cobweb'; qs: string[]; show: 'now' | 'both' | 'build' }
-  | { kind: 'cobweb_split'; qs: string[] }
+  /** Radar comparing groups: leadership vs. team (default) or one layer per company */
+  | { kind: 'cobweb_split'; qs: string[]; by?: 'leader' | 'company' }
   | { kind: 'gaps'; qs: string[] }
   | { kind: 'blindspots'; qs: string[] }
   /** Big number: share of respondents who chose any of `options` */
