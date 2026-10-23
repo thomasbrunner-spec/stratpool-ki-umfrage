@@ -39,6 +39,7 @@ function sessionPayload(part: ParticipantRow, project: ProjectRow) {
       company: part.company,
       func: part.func,
       workshop: Boolean(part.workshop),
+      leader: part.leader === null ? null : part.leader === 1,
       confirmed: Boolean(part.confirmed_at),
       completed: Boolean(part.completed_at),
     },
@@ -80,6 +81,7 @@ participantRouter.get('/entry/:slug', (req, res) => {
     client: p.client,
     companies: JSON.parse(p.companies) as string[],
     functions: survey?.functions ?? [],
+    workshopDate: p.workshop_date,
     locked: isLocked(p),
   });
 });
@@ -102,12 +104,14 @@ const PasswordLogin = z.object({
   name: z.string().trim().min(2).max(120),
   company: z.string().trim().max(120),
   func: z.string().trim().max(120),
+  workshop: z.boolean(),
+  leader: z.boolean(),
 });
 
 participantRouter.post('/login-password', loginLimiter, (req, res) => {
   const body = PasswordLogin.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({ error: 'Bitte Name, Gesellschaft und Funktion angeben.' });
+    res.status(400).json({ error: 'Bitte alle Angaben zu Ihrer Person ausfüllen.' });
     return;
   }
   const project = getProjectRowBySlug(body.data.slug);
@@ -134,6 +138,8 @@ participantRouter.post('/login-password', loginLimiter, (req, res) => {
       name: body.data.name,
       company: body.data.company,
       func: body.data.func,
+      workshop: body.data.workshop,
+      leader: body.data.leader,
       selfRegistered: true,
     });
   if (!existing) db.prepare(`UPDATE participants SET confirmed_at = datetime('now') WHERE id = ?`).run(part.id);
@@ -160,6 +166,8 @@ const Profile = z.object({
   name: z.string().trim().min(2).max(120),
   company: z.string().trim().max(120),
   func: z.string().trim().max(120),
+  workshop: z.boolean(),
+  leader: z.boolean(),
 });
 
 participantRouter.put('/profile', requireParticipant, (req, res) => {
@@ -167,7 +175,7 @@ participantRouter.put('/profile', requireParticipant, (req, res) => {
   if (!s) return;
   const body = Profile.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({ error: 'Bitte Name, Gesellschaft und Funktion angeben.' });
+    res.status(400).json({ error: 'Bitte alle Angaben zu Ihrer Person ausfüllen.' });
     return;
   }
   if (s.part.completed_at) {
@@ -175,8 +183,9 @@ participantRouter.put('/profile', requireParticipant, (req, res) => {
     return;
   }
   db.prepare(
-    `UPDATE participants SET name = ?, company = ?, func = ?, confirmed_at = COALESCE(confirmed_at, datetime('now')) WHERE id = ?`,
-  ).run(body.data.name, body.data.company, body.data.func, s.part.id);
+    `UPDATE participants SET name = ?, company = ?, func = ?, workshop = ?, leader = ?, confirmed_at = COALESCE(confirmed_at, datetime('now'))
+     WHERE id = ?`,
+  ).run(body.data.name, body.data.company, body.data.func, body.data.workshop ? 1 : 0, body.data.leader ? 1 : 0, s.part.id);
   res.json({ ok: true });
 });
 

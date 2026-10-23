@@ -121,7 +121,10 @@ export function Participants({ data, reload }: { data: ProjectDetail; reload: ()
                     </div>
                   </td>
                   <td>{p.company || '–'}</td>
-                  <td>{p.func || '–'}</td>
+                  <td>
+                    {p.func || '–'}
+                    {p.leader && <span className="pill" style={{ marginLeft: 6 }}>Führung</span>}
+                  </td>
                   <td>{p.workshop ? 'ja' : '–'}</td>
                   <td>
                     <span className={`pill ${p.status}`}>{STATUS_LABEL[p.status]}</span>

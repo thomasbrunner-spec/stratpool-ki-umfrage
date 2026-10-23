@@ -4,9 +4,9 @@
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
 
 ## Nächste Session – hier weitermachen
-1. **v0.6 deployen** (Commit lokal, noch nicht gepusht) und in Produktion prüfen: Reifegrad-Fragen nennen die eigene Gesellschaft, neue Folie „Gesellschaften im Vergleich“ (23 Folien), Sperre nach dem Absenden, „Wieder öffnen“ im Admin
+1. **v0.6 in Produktion prüfen** (gepusht 2026-10-23): Selbstregistrierung mit den neuen Feldern Führung/Workshop, Reifegrad-Fragen nennen die eigene Gesellschaft, neue Folie „Gesellschaften im Vergleich“ (23 Folien), Sperre nach dem Absenden, „Wieder öffnen“ im Admin
 2. **Produktiv-Projekt umstellen:** Zugang auf „gemeinsames Passwort“ (Selbstregistrierung, Entscheidung 2026-10-23), Gesellschaften pflegen: HumanTech Spine · DrehTech · HumanTech Solutions · HumanTech México · HumanTech Group
-3. **Offen durch Selbstregistrierung** (Entscheidung Thomas ausstehend, siehe „Offene Entscheidungen“): Führungsrolle und Workshop-Teilnahme werden nicht mehr erfasst
+3. Rücklauf je Person und persönliche Erinnerung entfallen bei Selbstregistrierung → Erinnerung als Rundmail planen
 4. Testpersonen über „Antworten löschen“ zurücksetzen, KI-Zusammenfassung live testen (`ANTHROPIC_API_KEY`)
 5. Externe Klärung Datenschutz/Betriebsrat/Teilnehmerkreis → danach Anonym-Modus entscheiden (Reminder unten)
 6. Danach: offene Entscheidungen klären → Einladungslink verschicken
@@ -20,7 +20,7 @@ Letzter Arbeitsstand (2026-10-23): v0.6 nach Kunden-Feedback umgesetzt (siehe St
 - [x] **v0.4 (Neukonzeption, freigegeben):** Koerting-Reifegrad als Kerninstrument mit Ist/Ziel je Dimension (7 Screens mit HumanTech-Ankern), AI-Native nur noch als Zielbild, Use-Case-Steckbrief (Aufgabe + Std. + Datenart), KI-Ampel, Copilot-Score (bedingt), Pilot-Bereitschaft, persönliches KI-Profil nach dem Absenden; 25 Fragen, ca. 12 Min.
 - [x] Präsentation v0.4: 21 Folien – Hero-Zahlen, Cobweb mit Aufbau Ist → Ziel, Lücken-Ranking, Führung vs. Team, blinde Flecken, Use-Case-Landkarte (Quick Wins), Zeitpotenzial in Vollzeitstellen, KI-Ampel, Piloten
 - [x] **v0.5:** AI Literacy ergänzt (C4 Weiterbildung bisher, C5 was hilft, max. 2) + Folie „Befähigung & Schulungsbedarf“ (22 Folien); KI-Cluster markieren Themen außerhalb der Angebotshypothesen als „neu“; Zeitpotenzial und Quick Wins vorsichtiger formuliert
-- [x] **v0.6 (Kunden-Feedback 2026-10-23, freigegeben):** „HumanTech Group“ in Begrüßung, E2, F1, Präsentationstitel; Reifegrad D1–D7 fragt nach der **eigenen Gesellschaft** (`{{company}}`), neue Folie „Gesellschaften im Vergleich“ (Gesellschaften unter Mindestgruppe ausgeblendet); Texte für DrehTech verallgemeinert (D4/D5/D7-Anker, F1 Produktion/Vertrieb, F2-Beispiel, G1); KI-Ampel mit 8 Aufgaben (neu: Arbeitsanweisungen und Prüfprotokolle), „weiß nicht / betrifft mich nicht“; **nach dem Absenden keine Änderungen mehr**, Admin kann je Person „Wieder öffnen“
+- [x] **v0.6 (Kunden-Feedback 2026-10-23, freigegeben):** „HumanTech Group“ in Begrüßung, E2, F1, Präsentationstitel; Reifegrad D1–D7 fragt nach der **eigenen Gesellschaft** (`{{company}}`), neue Folie „Gesellschaften im Vergleich“ (Gesellschaften unter Mindestgruppe ausgeblendet); Texte für DrehTech verallgemeinert (D4/D5/D7-Anker, F1 Produktion/Vertrieb, F2-Beispiel, G1); KI-Ampel mit 8 Aufgaben (neu: Arbeitsanweisungen und Prüfprotokolle), „weiß nicht / betrifft mich nicht“; **nach dem Absenden keine Änderungen mehr**, Admin kann je Person „Wieder öffnen“; **Selbstregistrierung (Entscheidung 2026-10-23)** fragt zusätzlich „Führungsverantwortung?“ und „Workshop-Teilnahme?“ (ja/nein), auch im Profil eingeladener Personen
 - [x] Admin: KI-Zusammenfassungen gesammelt erzeugen (Auswahl), Zitate immer ohne Namen, „Antworten löschen“ je Person
 - [x] Repo angelegt + Gerüst (Express 5/SQLite/React 19/Vite, TS strict, Dockerfile, CI)
 - [x] Teilnehmer-Flow (Einladungslink + Passwort/Selbstregistrierung, Profil, 1 Frage/Screen, Autosave, Zusammenfassung, Abschluss, Stichtag-Sperre)
@@ -58,12 +58,8 @@ Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schat
 - Optional: bestehende KI-Projekte/Assistenten im eigenen Bereich
 
 ## Offene Entscheidungen (Thomas)
-- **Folgen der Selbstregistrierung** (alle Teilnehmenden kommen über den Passwort-Link):
-  - „Führung vs. Team“ erkennt Abteilungsleitungen bisher nur über das CSV-Kürzel (GF/AL) → ohne CSV zählt nur „Geschäftsführung“. Vorschlag: Profilfeld „Haben Sie Führungsverantwortung?“ (ja/nein)
-  - Workshop-Teilnahme kam aus dem CSV → selbst Registrierte gelten als „nicht im Workshop“ (H1 bekommt den Nicht-Workshop-Text, Workshop-Rücklauf = 0). Vorschlag: Profilfeld „Nehmen Sie am Workshop am … teil?“ (ja/nein)
-  - Rücklauf je Person und persönliche Erinnerung entfallen; Erinnerung nur als Rundmail
 - Workshop-Termin und Stichtag (Feldzeit ≥ 10 Werktage + Erinnerung) → im Projekt eintragen, erscheinen in Begrüßung/Abschluss
-- Zugang: persönliche Links (empfohlen) oder gemeinsames Passwort – in den Projekteinstellungen umschaltbar
+- ~~Zugang~~ → entschieden 2026-10-23: gemeinsamer Passwort-Link mit Selbstregistrierung
 - Subdomain final (`umfrage.stratpool.pro`?)
 - Offizielle Namen der Gesellschaften (aktuell aus CSV abgeleitet; im Admin änderbar)
 - Absender der Einladung (Kunde oder ERA) – Textentwürfe im Admin unter „Einladungs- & Erinnerungstexte“
@@ -85,6 +81,7 @@ Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schat
 11. **Slider:** Antwort wird auch beim Tippen auf die Startposition gespeichert (`onPointerUp`) – nicht entfernen, sonst bleibt „Weiter“ gesperrt.
 12. **Reifegrad je Gesellschaft:** D1–D7-Titel enthalten `{{company}}`. Im Teilnehmer-Flow wird die eigene Gesellschaft eingesetzt, in Admin/Präsentation/KI-Prompt `neutralTitle()` („die eigene Gesellschaft“). Neue Titel mit Platzhalter immer über diese Helfer anzeigen.
 13. **Gesperrt nach Absenden:** `PUT /api/p/answers` und `/profile` liefern 423, sobald `completed_at` gesetzt ist. Entsperren: Admin → Teilnehmende → „Wieder öffnen“.
+14. **Führung:** `isLeader()` in `shared/aggregate.ts` = Profilangabe „Führungsverantwortung“ (Spalte `participants.leader`, NULL = nicht gefragt) ODER Bereich „Geschäftsführung“ ODER CSV-Kürzel GF/AL. Spalte wird beim Start per `ALTER TABLE` nachgezogen (`server/db.ts`).
 
 ## Lokal starten
 ```bash

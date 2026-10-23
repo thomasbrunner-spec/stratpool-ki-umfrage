@@ -34,6 +34,7 @@ export interface ParticipantView {
   func: string;
   roleNote: string;
   workshop: boolean;
+  leader: boolean;
   token: string;
   selfRegistered: boolean;
   status: 'invited' | 'started' | 'completed';

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, errorText } from '../api';
 import { navigate } from '../router';
+import { RoleFields, type RoleValues } from './ProfileFields';
 
 function AuthShell({ children }: { children: React.ReactNode }) {
   return (
@@ -59,6 +60,7 @@ interface EntryInfo {
   client: string;
   companies: string[];
   functions: string[];
+  workshopDate: string | null;
   locked: boolean;
 }
 
@@ -66,6 +68,7 @@ export function PasswordEntry({ slug }: { slug: string }) {
   const [info, setInfo] = useState<EntryInfo | null>(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ password: '', name: '', company: '', func: '', funcOther: '' });
+  const [roles, setRoles] = useState<RoleValues>({ leader: null, workshop: null });
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -81,7 +84,15 @@ export function PasswordEntry({ slug }: { slug: string }) {
     setError('');
     try {
       const func = form.func === 'Sonstiges' && form.funcOther.trim() ? `Sonstiges: ${form.funcOther.trim()}` : form.func;
-      await api.post('/api/p/login-password', { slug, password: form.password, name: form.name, company: form.company, func });
+      await api.post('/api/p/login-password', {
+        slug,
+        password: form.password,
+        name: form.name,
+        company: form.company,
+        func,
+        workshop: roles.workshop === true,
+        leader: roles.leader === true,
+      });
       navigate('/umfrage', true);
     } catch (err) {
       setError(errorText(err));
@@ -137,6 +148,7 @@ export function PasswordEntry({ slug }: { slug: string }) {
             <input className="input" value={form.funcOther} onChange={set('funcOther')} />
           </label>
         )}
+        <RoleFields value={roles} workshopDate={info.workshopDate} onChange={setRoles} />
         {error && <p className="error">{error}</p>}
         <button className="btn primary" disabled={busy || info.locked} style={{ width: '100%' }}>
           {info.locked ? 'Die Umfrage ist abgeschlossen' : 'Zur Umfrage'}

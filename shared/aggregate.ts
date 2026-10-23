@@ -558,6 +558,11 @@ export function widgetKey(w: Widget): string {
 
 export const LEADERSHIP_LABELS = ['Führung (GF/AL)', 'Team'] as const;
 
+/** Leadership: self-declared in the profile, management in the dropdown, or a GF/AL role note from the CSV ("GF DT", "AL QM"). */
+export function isLeader(p: { leader: boolean | null; func: string; roleNote: string }): boolean {
+  return p.leader === true || p.func === 'Geschäftsführung' || /^(GF|AL)\b/i.test(p.roleNote);
+}
+
 /** Groups for the cobweb comparison: leadership vs. team, or one group per company. */
 export function splitGroups(rows: ResultRow[], by: 'leader' | 'company'): { label: string; rows: ResultRow[] }[] {
   if (by === 'leader') {

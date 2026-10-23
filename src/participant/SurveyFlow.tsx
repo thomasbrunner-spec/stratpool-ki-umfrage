@@ -6,9 +6,18 @@ import { formatAnswer } from '../../shared/format';
 import type { AnswerMap, AnswerValue, Question, SurveyDefinition } from '../../shared/types';
 import { QuestionInput } from './QuestionInput';
 import { PersonalProfile } from './PersonalProfile';
+import { fmtDate, RoleFields, type RoleValues } from './ProfileFields';
 
 interface Session {
-  participant: { name: string; company: string; func: string; workshop: boolean; confirmed: boolean; completed: boolean };
+  participant: {
+    name: string;
+    company: string;
+    func: string;
+    workshop: boolean;
+    leader: boolean | null;
+    confirmed: boolean;
+    completed: boolean;
+  };
   project: { name: string; client: string; companies: string[]; workshopDate: string | null; deadline: string | null; locked: boolean };
   survey: SurveyDefinition;
   answers: AnswerMap;
@@ -16,9 +25,6 @@ interface Session {
 
 type Step = 'welcome' | 'profile' | number | 'summary' | 'done';
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
-
-const fmtDate = (d: string | null) =>
-  d ? new Date(`${d}T12:00:00`).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 
 export function SurveyFlow() {
   const [session, setSession] = useState<Session | null>(null);
@@ -334,7 +340,7 @@ function Profile({
 }: {
   session: Session;
   onBack: () => void;
-  onDone: (p: { name: string; company: string; func: string }) => void;
+  onDone: (p: { name: string; company: string; func: string; workshop: boolean; leader: boolean }) => void;
 }) {
   const { participant, project, survey } = session;
   const known = survey.functions.includes(participant.func);
@@ -342,15 +348,18 @@ function Profile({
   const [company, setCompany] = useState(participant.company);
   const [func, setFunc] = useState(known ? participant.func : participant.func ? 'Sonstiges' : '');
   const [funcOther, setFuncOther] = useState(known ? '' : participant.func.replace(/^Sonstiges:\s*/, ''));
+  // invited participants: workshop flag is prefilled from the CSV, the leadership role is asked once
+  const [roles, setRoles] = useState<RoleValues>({ leader: participant.leader, workshop: participant.workshop });
   const [error, setError] = useState('');
   const companies = company && !project.companies.includes(company) ? [...project.companies, company] : project.companies;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const f = func === 'Sonstiges' && funcOther.trim() ? `Sonstiges: ${funcOther.trim()}` : func;
+    const p = { name, company, func: f, workshop: roles.workshop === true, leader: roles.leader === true };
     try {
-      await api.put('/api/p/profile', { name, company, func: f });
-      onDone({ name, company, func: f });
+      await api.put('/api/p/profile', p);
+      onDone(p);
     } catch (err) {
       setError(errorText(err));
     }
@@ -361,7 +370,7 @@ function Profile({
       <form onSubmit={submit} className="stack">
         <div className="p-eyebrow">Zu Ihrer Person</div>
         <h1 className="p-q">Stimmen diese Angaben?</h1>
-        <p className="p-help">Wir nutzen sie, um die Ergebnisse nach Gesellschaft und Bereich auswerten zu können.</p>
+        <p className="p-help">Wir nutzen sie, um die Ergebnisse nach Gesellschaft, Bereich und Rolle auswerten zu können.</p>
         <label className="field">
           <span>Name</span>
           <input className="input" required minLength={2} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
@@ -394,6 +403,7 @@ function Profile({
             <input className="input" value={funcOther} onChange={(e) => setFuncOther(e.target.value)} />
           </label>
         )}
+        <RoleFields value={roles} workshopDate={project.workshopDate} onChange={setRoles} />
         {error && <p className="error">{error}</p>}
         <Nav>
           <button type="button" className="btn ghost" onClick={onBack}>

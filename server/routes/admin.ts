@@ -30,7 +30,7 @@ import {
   signInAdmin,
 } from '../auth.js';
 import { getSurvey, listSurveys } from '../surveys.js';
-import { loadResultRows } from '../results.js';
+import { loadResultRows, participantInfo } from '../results.js';
 import { exportTable, exportXlsx } from '../export.js';
 import {
   AiNotConfiguredError,
@@ -110,6 +110,7 @@ function participantView(p: ParticipantRow, answered: boolean, last: string | un
     func: p.func,
     roleNote: p.role_note,
     workshop: Boolean(p.workshop),
+    leader: participantInfo(p).leader,
     token: p.token,
     selfRegistered: Boolean(p.self_registered),
     status: p.completed_at ? 'completed' : answered ? 'started' : 'invited',

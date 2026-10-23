@@ -43,6 +43,7 @@ db.exec(`
     func TEXT NOT NULL DEFAULT '',
     role_note TEXT NOT NULL DEFAULT '',
     workshop INTEGER NOT NULL DEFAULT 0,
+    leader INTEGER,
     token TEXT UNIQUE NOT NULL,
     self_registered INTEGER NOT NULL DEFAULT 0,
     confirmed_at TEXT,
@@ -78,6 +79,11 @@ db.exec(`
     PRIMARY KEY (project_id, slide_id)
   );
 `);
+
+// Columns added after the first deployment (CREATE TABLE IF NOT EXISTS does not add them)
+const participantColumns = (db.prepare('PRAGMA table_info(participants)').all() as { name: string }[]).map((c) => c.name);
+// self-declared leadership role; NULL = not asked (invited via CSV)
+if (!participantColumns.includes('leader')) db.exec('ALTER TABLE participants ADD COLUMN leader INTEGER');
 
 // ---------- Types ----------
 
@@ -126,6 +132,7 @@ export interface ParticipantRow {
   func: string;
   role_note: string;
   workshop: number;
+  leader: number | null;
   token: string;
   self_registered: number;
   confirmed_at: string | null;
@@ -197,14 +204,15 @@ export interface NewParticipant {
   func?: string;
   roleNote?: string;
   workshop?: boolean;
+  leader?: boolean | null;
   selfRegistered?: boolean;
 }
 
 export function insertParticipant(projectId: string, p: NewParticipant): ParticipantRow {
   const id = crypto.randomUUID();
   db.prepare(
-    `INSERT INTO participants (id, project_id, name, email, company, func, role_note, workshop, token, self_registered)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO participants (id, project_id, name, email, company, func, role_note, workshop, leader, token, self_registered)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     projectId,
@@ -214,6 +222,7 @@ export function insertParticipant(projectId: string, p: NewParticipant): Partici
     (p.func ?? '').trim(),
     (p.roleNote ?? '').trim(),
     p.workshop ? 1 : 0,
+    p.leader === undefined || p.leader === null ? null : p.leader ? 1 : 0,
     newToken(),
     p.selfRegistered ? 1 : 0,
   );

@@ -6,6 +6,7 @@ import {
   aggregateHero,
   aggregateMatrix,
   aggregatePilots,
+  isLeader,
   widgetKey,
   type CobwebSplitResult,
   aggregateQuestion,
@@ -154,6 +155,14 @@ describe('maturity, cobweb and leadership split', () => {
     expect(split.groups.map((g) => g.n)).toEqual([1, 2]);
     expect(split.groups[0]!.cobweb.dims[0]).toMatchObject({ id: 'D1', now: 3, target: 5, gap: 2 });
     expect(split.groups[1]!.cobweb.dims[0]).toMatchObject({ now: 1.5, target: 3 });
+  });
+
+  it('treats self-declared leaders, management and GF/AL role notes as leadership', () => {
+    expect(isLeader({ leader: true, func: 'Produktion', roleNote: '' })).toBe(true);
+    expect(isLeader({ leader: false, func: 'Geschäftsführung', roleNote: '' })).toBe(true);
+    expect(isLeader({ leader: null, func: 'Qualitätsmanagement', roleNote: 'AL QM' })).toBe(true);
+    expect(isLeader({ leader: false, func: 'F&E', roleNote: 'F&E' })).toBe(false);
+    expect(isLeader({ leader: null, func: 'Vertrieb/ID', roleNote: 'ALEX' })).toBe(false);
   });
 
   it('splits the cobweb by company, largest company first', () => {
