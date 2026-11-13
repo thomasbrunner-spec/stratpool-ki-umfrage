@@ -1,7 +1,31 @@
 # Projektstatus – stratpool-ki-umfrage
 
-> Wiedereinstiegspunkt für die nächste Session. Stand: **2026-10-23**
+> Wiedereinstiegspunkt für die nächste Session. Stand: **2026-11-13** (v0.7, Workshop-Feedback)
 > Repo: https://github.com/thomasbrunner-spec/stratpool-ki-umfrage (öffentlich – keine Kundendaten!)
+
+## v0.7 – Feedback zur Präsentation (2026-11-13, Branch `feat/workshop-feedback-2026-11-13`)
+- Umfrage ist gelaufen, Auswertung wird im Workshop am 19.11.2026 genutzt. Details und Befunde: `docs/kontext/UEBERGABE-workshop-2026-11-13.md` (gitignored, Kundendaten)
+- KI-Zusammenfassung ist in Produktion eingerichtet und mit echtem Key gelaufen (Live-Test erledigt)
+- **Freitext-Prüfung (neu):** KI markiert inhaltsleere Freitexte (Verweise wie „siehe vorherige Antwort“, „keine“, „-“, Testeingaben), Tabelle `text_flags`; manuell übersteuerbar (Admin → KI-Zusammenfassung → Freitext-Prüfung). Ausgeblendete Texte fehlen in Dashboard, Präsentation, KI-Zusammenfassungen und Chat (`loadResultRows`), Rohdaten/Export bleiben unverändert. Manuelle Entscheidungen überleben eine erneute KI-Prüfung; ein Flag gilt nur, solange der Antworttext unverändert ist
+- **Chat mit der Umfrage (neu):** Admin → KI-Zusammenfassung → Chat. Daten pseudonymisiert (R-Nummern, Gruppe = Führung/Team · Gesellschaft · Bereich, keine Namen), Leitplanken: nur Aussagen aus den Daten, Abdeckung full/partial/none wird angezeigt, „Einordnung (nicht aus der Umfrage)“ getrennt, Zitate werden serverseitig wörtlich gegen die Antworten geprüft (nicht belegbare werden entfernt und gezählt). Verlauf wird nicht gespeichert. Effort `medium` für schnellere Antworten
+- **Wortwolke (Folie 3):** neues KI-Ziel `A1` (mode `terms`) verdichtet Sätze zu 1–2-Wort-Begriffen; Darstellung passt Schriftgröße an die Wortlänge an, max. 24 Begriffe. Ohne Begriffe oder im gefilterten Modus: Rohwörter
+- **Folien 6/7:** je Gruppe ein eigenes Netz, Aufbau wie Folie 4 (heute → Klick → Ziel), Ø heute → Ziel je Gruppe
+- **Folie 11:** datenbasierte Kernaussage unter dem Titel (`shared/takeaway.ts`), Matrix zeigt „x von n“ statt Prozent, Achsen mit Skala, Hinweis auf Punkte genau auf der Mittellinie
+- **Folie 13:** Punkte als Hauptwert, Prozent erklärt, nicht gezeigte Bereiche als Fußnote
+- **Folie 14:** neu „Use-Case-Kandidaten: Zeitaufwand und Datenlage“ – Balken je Thema = genannte Std./Woche, Farben = Datenart, Quick-Win-Regel erklärt (statt überlappender Blasen)
+- **Folien 16/22:** max. 6 Karten (3 × 2), 1 Zitat, Rest als „Außerdem genannt“; Label „neu“ nur noch im Admin
+- **Synthese:** auf zwei Folien geteilt (Befunde / Implikationen + offene Fragen, 24 Folien), Prompt mit Längengrenzen
+- Cluster-Prompt ignoriert inhaltsleere Antworten; 64 Tests grün
+
+### Nach dem Deploy in der App (Reihenfolge)
+1. Freitext-Prüfung → „Mit KI prüfen“, Ergebnis kontrollieren
+2. Zusammenfassungen → „Ausgewählte erzeugen“ (alle, damit Begriffe für die Wortwolke entstehen und die Synthese kurz wird)
+3. Präsentation durchklicken, dann 4–5 Folien für Block 1 auswählen und als Bilder exportieren
+4. Chat einmal mit echten Fragen testen (Demo 3 im Workshop?)
+
+### Weiter offen
+- Ergebnis-PDF an die Befragten nach dem Workshop
+- Die Liste „Nächste Session“ unten ist vom 23.10. (vor der Feldphase) und muss abgeglichen werden
 
 ## Nächste Session – hier weitermachen
 1. **v0.6 in Produktion prüfen** (gepusht 2026-10-23): Selbstregistrierung mit den neuen Feldern Führung/Workshop, Reifegrad-Fragen nennen die eigene Gesellschaft, neue Folie „Gesellschaften im Vergleich“ (23 Folien), Sperre nach dem Absenden, „Wieder öffnen“ im Admin
@@ -31,7 +55,7 @@ Letzter Arbeitsstand (2026-10-23): v0.6 nach Kunden-Feedback umgesetzt (siehe St
 - [ ] Review der Präsentation mit Thomas
 - [x] Deploy auf Coolify (2026-10-22), Health-Check ok – siehe DEPLOYMENT.md
 - [ ] Smoke-Test in Produktion: Admin-Login, Testprojekt, Teilnehmer-Durchlauf am Handy, KI-Zusammenfassung, Testprojekt löschen
-- [ ] Live-Test KI-Zusammenfassung mit echtem `ANTHROPIC_API_KEY` (Demo-Projekt)
+- [x] Live-Test KI-Zusammenfassung mit echtem `ANTHROPIC_API_KEY` (in Produktion gelaufen)
 - [ ] Echte Teilnehmer importiert, Einladung verschickt
 
 ## Vor dem Versand außerhalb der App klären (Abgleich mit Vertrag/Angebot, 2026-10-22)
@@ -82,6 +106,8 @@ Vorteil: Datenschutz/Betriebsrat deutlich einfacher, ehrlichere Angaben zu Schat
 12. **Reifegrad je Gesellschaft:** D1–D7-Titel enthalten `{{company}}`. Im Teilnehmer-Flow wird die eigene Gesellschaft eingesetzt, in Admin/Präsentation/KI-Prompt `neutralTitle()` („die eigene Gesellschaft“). Neue Titel mit Platzhalter immer über diese Helfer anzeigen.
 13. **Gesperrt nach Absenden:** `PUT /api/p/answers` und `/profile` liefern 423, sobald `completed_at` gesetzt ist. Entsperren: Admin → Teilnehmende → „Wieder öffnen“.
 14. **Führung:** `isLeader()` in `shared/aggregate.ts` = Profilangabe „Führungsverantwortung“ (Spalte `participants.leader`, NULL = nicht gefragt) ODER Bereich „Geschäftsführung“ ODER CSV-Kürzel GF/AL. Spalte wird beim Start per `ALTER TABLE` nachgezogen (`server/db.ts`).
+15. **Freitext-Flags:** Auswertungen immer über `loadResultRows` (blendet markierte Freitexte aus); `loadRawRows` nur für Admin-Listen/Export. Text-Keys = `pid|qid|index`.
+16. **Chat:** Server prüft Zitate per `quoteMatches` (Teile an „…“ getrennt, in Reihenfolge). Neue Antworttypen → `describeAnswer` in `server/ai.ts` ergänzen.
 
 ## Lokal starten
 ```bash

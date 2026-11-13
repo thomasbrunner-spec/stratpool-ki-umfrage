@@ -902,6 +902,14 @@
   ],
   "aiTargets": [
     {
+      "key": "A1",
+      "label": "Stimmungsbild: Begriffe für die Wortwolke",
+      "questions": [
+        "A1"
+      ],
+      "mode": "terms"
+    },
+    {
       "key": "F2",
       "label": "Use-Case-Kandidaten (Top-Aufgaben)",
       "questions": [
@@ -1055,7 +1063,8 @@
             "D7"
           ]
         }
-      ]
+      ],
+      "steps": 2
     },
     {
       "id": "s-split-company",
@@ -1075,7 +1084,8 @@
           ],
           "by": "company"
         }
-      ]
+      ],
+      "steps": 2
     },
     {
       "id": "s-blind",
@@ -1180,7 +1190,7 @@
     {
       "id": "s-usecases",
       "eyebrow": "Was zuerst?",
-      "title": "Use-Case-Landkarte: Kandidaten für Quick Wins",
+      "title": "Use-Case-Kandidaten: Zeitaufwand und Datenlage",
       "widgets": [
         {
           "kind": "usecase_map",
@@ -1289,11 +1299,24 @@
     {
       "id": "s-synthesis",
       "eyebrow": "Synthese",
+      "title": "Was die Befragung zeigt",
+      "widgets": [
+        {
+          "kind": "ai",
+          "key": "synthesis",
+          "part": "findings"
+        }
+      ]
+    },
+    {
+      "id": "s-synthesis-impl",
+      "eyebrow": "Synthese",
       "title": "Implikationen für den heutigen Tag",
       "widgets": [
         {
           "kind": "ai",
-          "key": "synthesis"
+          "key": "synthesis",
+          "part": "implications"
         }
       ]
     }

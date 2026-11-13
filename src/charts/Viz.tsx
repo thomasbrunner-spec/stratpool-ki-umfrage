@@ -99,13 +99,20 @@ export function QuestionViz({ q, survey, result, names, showNames, large, limit 
       );
     case 'usecase':
       return <UseCaseList q={q as UseCaseQuestion} items={result.items} limit={limit} />;
-    case 'points':
+    case 'points': {
+      const shown = cut(result.items);
+      const rest = result.items.filter((i) => !shown.includes(i));
+      const all = result.items.reduce((a, i) => a + i.total, 0);
       return (
-        <Bars
-          ranked
-          items={cut(result.items).map((i) => ({ label: i.label, share: i.share, value: pct(i.share), sub: `${i.total} Pkt.` }))}
-        />
+        <>
+          <Bars ranked items={shown.map((i) => ({ label: i.label, share: i.share, value: `${i.total} Pkt.`, sub: pct(i.share) }))} />
+          <p className="small muted" style={{ marginTop: 10, marginBottom: 0 }}>
+            {result.n} Personen haben je {result.budget} Punkte verteilt ({all} Punkte insgesamt). Prozent = Anteil an allen Punkten.
+            {rest.length > 0 && ` Nicht gezeigt: ${rest.map((i) => `${i.label.replace(/ \(.*\)$/, '')} (${i.total})`).join(', ')}.`}
+          </p>
+        </>
       );
+    }
   }
 }
 
@@ -156,29 +163,37 @@ export function LevelColumns({ levels }: { levels: LevelItem[] }) {
 
 // ---------- Word cloud ----------
 
-export function WordCloud({ words, large }: { words: { text: string; count: number }[]; large?: boolean }) {
-  const top = words.slice(0, 40);
+export function WordCloud({ words, large, note }: { words: { text: string; count: number }[]; large?: boolean; note?: string }) {
+  const top = words.slice(0, 24);
   const max = Math.max(...top.map((w) => w.count), 1);
   const min = Math.min(...top.map((w) => w.count), max);
   // Interleave big and small words for a balanced cloud
   const ordered = top.flatMap((w, i) => (i % 2 ? [] : [w])).concat(top.filter((_, i) => i % 2).reverse());
-  const base = large ? 18 : 14;
-  const span = large ? 46 : 30;
+  const base = large ? 18 : 15;
+  const span = large ? 42 : 26;
+  // a word must fit into one line of the panel: roughly 0.55 em per character
+  const width = large ? 1050 : 520;
   return (
-    <div className="wordcloud">
-      {ordered.map((w) => {
-        const t = max === min ? 1 : (w.count - min) / (max - min);
-        const isTop = w.count === max;
-        return (
-          <span
-            key={w.text}
-            title={`${w.count}×`}
-            style={{ fontSize: base + t * span, color: isTop ? C.orange : t > 0.4 ? C.ink : C.ink2, opacity: 0.6 + t * 0.4 }}
-          >
-            {w.text}
-          </span>
-        );
-      })}
+    <div className="wordcloud-wrap">
+      <div className="wordcloud">
+        {ordered.map((w) => {
+          // all words equally frequent: medium size instead of all at maximum
+          const t = max === min ? 0.35 : (w.count - min) / (max - min);
+          const isTop = w.count === max && max > min;
+          const size = Math.min(base + t * span, width / (0.56 * Math.max(4, w.text.length)));
+          return (
+            <span
+              key={w.text}
+              title={`${w.count}×`}
+              style={{ fontSize: Math.max(13, size), color: isTop ? C.orange : t > 0.4 ? C.ink : C.ink2, opacity: 0.65 + t * 0.35 }}
+            >
+              {w.text}
+              {w.count > 1 && <sup>{w.count}</sup>}
+            </span>
+          );
+        })}
+      </div>
+      {note && <p className="small muted" style={{ margin: 0, textAlign: 'center' }}>{note}</p>}
     </div>
   );
 }
@@ -719,89 +734,73 @@ export function UseCaseList({ q, items, limit }: { q: UseCaseQuestion; items: Us
   );
 }
 
+/** Colours for data sensitivity 1 (public) … 5 (patient data) */
+const LEVEL_COLORS = ['#1BAF7A', '#6DA7EC', '#EDA100', '#F07D3C', '#E66767'];
+
 /**
- * Use-case landscape: x = data sensitivity (feasibility), y = weekly hours.
- * With an AI cluster summary the clusters become bubbles, otherwise each answer is a dot.
+ * Use-case candidates: one row per theme (AI clusters of the task answers) or per task.
+ * Bar length = weekly hours named in total, bar colours = data sensitivity of these tasks.
+ * Quick-win candidate = most of the hours involve only public or internal data.
  */
-export function UseCaseMap({ q, items, clusters }: { q: UseCaseQuestion; items: UseCaseItem[]; clusters?: ClusterSummary }) {
-  const W = 1000;
-  const H = 470;
-  const padL = 60;
-  const padB = 70;
-  const padT = 20;
-  const known = items.filter((i) => i.level !== null && i.hours !== null);
-  const unknown = items.length - known.length;
-  const maxH = Math.max(q.hoursMax / 2, ...known.map((i) => i.hours ?? 0));
-  const xOf = (lvl: number) => padL + ((lvl - 0.5) / 5) * (W - padL - 20);
-  const yOf = (h: number) => padT + (1 - h / maxH) * (H - padT - padB);
-  const hoursSorted = known.map((i) => i.hours ?? 0).sort((a, b) => a - b);
-  const midH = hoursSorted.length ? hoursSorted[Math.floor(hoursSorted.length / 2)]! : maxH / 2;
-  const midX = xOf(2.5);
-  const midY = yOf(midH);
-
-  type Bubble = { x: number; y: number; r: number; label?: string; n: number; key: string };
-  let bubbles: Bubble[];
-  if (clusters && clusters.themes.some((t) => t.pids?.length)) {
-    bubbles = clusters.themes
-      .map((t, k): Bubble | null => {
-        const its = known.filter((i) => t.pids?.includes(i.pid));
-        if (!its.length) return null;
-        const lv = its.map((i) => i.level ?? 0).sort((a, b) => a - b);
-        const level = lv[Math.floor(lv.length / 2)]!;
-        const hours = its.reduce((a, i) => a + (i.hours ?? 0), 0) / its.length;
-        return { x: xOf(level) + jitter(t.title, 30), y: yOf(hours), r: 14 + Math.sqrt(its.length) * 12, label: t.title, n: its.length, key: `t${k}` };
-      })
-      .filter((b): b is Bubble => b !== null);
-  } else {
-    bubbles = known.map((i) => ({ x: xOf(i.level!) + jitter(i.pid, 70), y: yOf(i.hours!), r: 8, n: 1, key: i.pid }));
-  }
-
-  const qLabel = (x: number, y: number, t: string, hi?: boolean, anchor: 'start' | 'end' = 'start') => (
-    <text x={x} y={y} fill={hi ? C.orange : C.ink3} fontSize={hi ? 15 : 12} letterSpacing="1.4" textAnchor={anchor} fontFamily={hi ? 'Varela Round' : undefined}>
-      {t.toUpperCase()}
-    </text>
-  );
+export function UseCaseMap({ q, items, clusters, limit = 7 }: { q: UseCaseQuestion; items: UseCaseItem[]; clusters?: ClusterSummary; limit?: number }) {
+  const levels = q.dataOptions.filter((o) => o.level !== null).sort((a, b) => a.level! - b.level!);
+  type Row = { key: string; label: string; n: number; hours: number; byLevel: number[]; unknown: number };
+  const rowOf = (key: string, label: string, its: UseCaseItem[]): Row => {
+    const byLevel = levels.map((o) => its.filter((i) => i.level === o.level).reduce((a, i) => a + (i.hours ?? 0), 0));
+    const unknown = its.filter((i) => i.level === null).reduce((a, i) => a + (i.hours ?? 0), 0);
+    return { key, label, n: its.length, hours: byLevel.reduce((a, b) => a + b, 0) + unknown, byLevel, unknown };
+  };
+  const byTheme = Boolean(clusters && clusters.themes.some((t) => t.pids?.length));
+  const rows: Row[] = (
+    byTheme
+      ? clusters!.themes.map((t, k) => rowOf(`t${k}`, t.title, items.filter((i) => t.pids?.includes(i.pid))))
+      : items.map((i, k) => rowOf(`i${k}`, i.task, [i]))
+  )
+    .filter((r) => r.n > 0)
+    .sort((a, b) => b.hours - a.hours || b.n - a.n);
+  const shown = rows.slice(0, limit);
+  const maxH = Math.max(...shown.map((r) => r.hours), 1);
+  const quick = (r: Row) => r.hours > 0 && (r.byLevel[0]! + r.byLevel[1]!) / r.hours >= 0.5;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Use-Case-Landkarte">
-      <rect x={padL} y={padT} width={midX - padL} height={midY - padT} fill="rgba(253,154,0,0.08)" />
-      <line x1={midX} x2={midX} y1={padT} y2={H - padB} stroke={C.line} />
-      <line x1={padL} x2={W - 20} y1={midY} y2={midY} stroke={C.line} />
-      {qLabel(padL + 12, padT + 22, 'Quick-Win-Kandidaten', true)}
-      {qLabel(W - 32, padT + 20, 'Hoher Hebel, hohe Anforderungen', false, 'end')}
-      {qLabel(padL + 12, H - padB - 12, 'Einfach, kleiner Hebel')}
-      {qLabel(W - 32, H - padB - 12, 'Später prüfen', false, 'end')}
-      {q.dataOptions
-        .filter((o) => o.level !== null)
-        .map((o) => (
-          <text key={o.id} x={xOf(o.level!)} y={H - padB + 22} fill={C.ink2} fontSize="12" textAnchor="middle">
-            {o.label.replace(/ \(.*\)$/, '')}
-          </text>
-        ))}
-      <text x={(padL + W) / 2} y={H - 10} fill={C.ink3} fontSize="12" textAnchor="middle">
-        Datensensibilität →{unknown ? `   (${unknown} ohne Angabe nicht dargestellt)` : ''}
-      </text>
-      {[0, maxH / 2, maxH].map((h) => (
-        <text key={h} x={padL - 10} y={yOf(h) + 4} fill={C.ink3} fontSize="11" textAnchor="end">
-          {num(h, 0)}
-        </text>
+    <div className="uc">
+      <div className="uc-head">
+        <span>{byTheme ? 'Thema (Anzahl Nennungen)' : 'Aufgabe'}</span>
+        <span>Genannte Zeit pro Woche, nach Datenart der Aufgaben</span>
+        <span />
+      </div>
+      {shown.map((r) => (
+        <div className="uc-row" key={r.key}>
+          <span className="uc-label">
+            {r.label}
+            {byTheme && <span className="muted"> ({r.n})</span>}
+          </span>
+          <span className="uc-track">
+            <span className="uc-bar" style={{ width: `${(r.hours / maxH) * 100}%` }}>
+              {r.byLevel.map((h, i) =>
+                h > 0 ? <span key={i} style={{ flex: h, background: LEVEL_COLORS[i] }} title={`${levels[i]!.label}: ${num(h)} Std.`} /> : null,
+              )}
+              {r.unknown > 0 && <span style={{ flex: r.unknown, background: '#3E6B9B' }} title={`Datenart unbekannt: ${num(r.unknown)} Std.`} />}
+            </span>
+            <span className="uc-val">{num(r.hours, r.hours % 1 ? 1 : 0)} Std.</span>
+          </span>
+          <span>{quick(r) && <span className="uc-quick">Quick Win</span>}</span>
+        </div>
       ))}
-      <text x={16} y={(padT + H - padB) / 2} fill={C.ink3} fontSize="12" textAnchor="middle" transform={`rotate(-90 16 ${(padT + H - padB) / 2})`}>
-        Std. pro Woche →
-      </text>
-      {bubbles.map((b) => {
-        const quick = b.x < midX && b.y < midY;
-        return (
-          <g key={b.key}>
-            <circle cx={b.x} cy={b.y} r={b.r} fill={quick ? C.orange : C.blue} opacity={0.85} stroke={C.deep} strokeWidth={2} />
-            {b.label && (
-              <text x={b.x} y={b.y - b.r - 8} fill={C.ink} fontSize="14" textAnchor="middle" fontFamily="Varela Round">
-                {b.label} ({b.n})
-              </text>
-            )}
-          </g>
-        );
-      })}
-    </svg>
+      {rows.length > shown.length && <p className="small muted" style={{ margin: '2px 0 0' }}>außerdem: {rows.slice(limit).map((r) => r.label).join(' · ')}</p>}
+      <div className="uc-legend">
+        <span className="muted">Datenart:</span>
+        {levels.map((o, i) => (
+          <span key={o.id}>
+            <i style={{ background: LEVEL_COLORS[i] }} />
+            {o.label.replace(/ \(.*\)$/, '')}
+          </span>
+        ))}
+      </div>
+      <p className="small muted" style={{ margin: 0 }}>
+        Quick Win = mindestens die Hälfte der genannten Zeit betrifft öffentliche oder interne Daten. Zeiten sind Selbsteinschätzungen.
+        {!byTheme && ' Nach der KI-Zusammenfassung werden die Aufgaben zu Themen gebündelt.'}
+      </p>
+    </div>
   );
 }
 
@@ -864,47 +863,65 @@ export function SelfVsDepth({ data }: { data: SelfVsDepthResult }) {
 
 export function Matrix({ data, xLabel, yLabel, quadrants }: { data: MatrixResult; xLabel: string; yLabel: string; quadrants: [string, string, string, string] }) {
   const W = 560;
-  const H = 340;
-  const pad = 30;
+  const H = 360;
+  const pad = 34;
   const xOf = (v: number) => pad + (v / 100) * (W - 2 * pad);
-  const yOf = (v: number) => pad + (1 - v / 100) * (H - 2 * pad);
+  const yOf = (v: number) => pad - 6 + (1 - v / 100) * (H - 2 * pad - 14);
   const maxQ = Math.max(...data.quadrants);
+  const onLine = data.points.filter((p) => p.x === data.midX || p.y === data.midY).length;
   // order: bottom-left, top-left, bottom-right, top-right
+  const top = yOf(100);
+  const bottom = yOf(0);
   const pos = [
-    { x: pad + 10, y: H - pad - 12, a: 'start' },
-    { x: pad + 10, y: pad + 22, a: 'start' },
-    { x: W - pad - 10, y: H - pad - 12, a: 'end' },
-    { x: W - pad - 10, y: pad + 22, a: 'end' },
+    { x: pad + 10, y: bottom - 12, a: 'start' },
+    { x: pad + 10, y: top + 36, a: 'start' },
+    { x: W - pad - 10, y: bottom - 12, a: 'end' },
+    { x: W - pad - 10, y: top + 36, a: 'end' },
   ] as const;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`${xLabel} und ${yLabel}`}>
-      <rect x={pad} y={pad} width={W - 2 * pad} height={H - 2 * pad} fill="rgba(255,255,255,0.02)" stroke={C.line} rx={8} />
-      <line x1={xOf(data.midX)} x2={xOf(data.midX)} y1={pad} y2={H - pad} stroke={C.line} />
-      <line y1={yOf(data.midY)} y2={yOf(data.midY)} x1={pad} x2={W - pad} stroke={C.line} />
-      {quadrants.map((label, i) => {
-        const p = pos[i]!;
-        const share = data.quadrants[i]!;
-        const hi = share === maxQ && share > 0;
-        return (
-          <g key={label}>
-            <text x={p.x} y={p.y - 18} fill={C.ink3} fontSize="11" letterSpacing="1.2" textAnchor={p.a}>
-              {label.toUpperCase()}
-            </text>
-            <text x={p.x} y={p.y + 2} fill={hi ? C.orange : C.ink2} fontSize="20" fontFamily="Varela Round" textAnchor={p.a}>
-              {pct(share)}
-            </text>
-          </g>
-        );
-      })}
-      {data.points.map((pt) => (
-        <circle key={pt.pid} cx={xOf(pt.x)} cy={yOf(pt.y)} r={6} fill={C.orange} opacity={0.85} stroke={C.deep} />
-      ))}
-      <text x={W / 2} y={H - 8} fill={C.ink3} fontSize="12" textAnchor="middle">
-        {xLabel} →
-      </text>
-      <text x={12} y={H / 2} fill={C.ink3} fontSize="12" textAnchor="middle" transform={`rotate(-90 12 ${H / 2})`}>
-        {yLabel} →
-      </text>
-    </svg>
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`${xLabel} und ${yLabel}`}>
+        <rect x={pad} y={top} width={W - 2 * pad} height={bottom - top} fill="rgba(255,255,255,0.02)" stroke={C.line} rx={8} />
+        <line x1={xOf(data.midX)} x2={xOf(data.midX)} y1={top} y2={bottom} stroke={C.line} />
+        <line y1={yOf(data.midY)} y2={yOf(data.midY)} x1={pad} x2={W - pad} stroke={C.line} />
+        <text x={xOf(data.midX)} y={bottom + 14} fill={C.ink3} fontSize="10" textAnchor="middle">
+          {data.midX}
+        </text>
+        <text x={pad - 6} y={yOf(data.midY) + 4} fill={C.ink3} fontSize="10" textAnchor="end">
+          {data.midY}
+        </text>
+        {quadrants.map((label, i) => {
+          const p = pos[i]!;
+          const share = data.quadrants[i]!;
+          const count = Math.round(share * data.n);
+          const hi = share === maxQ && share > 0;
+          return (
+            <g key={label}>
+              <text x={p.x} y={p.y - 22} fill={C.ink3} fontSize="11" letterSpacing="1.2" textAnchor={p.a}>
+                {label.toUpperCase()}
+              </text>
+              <text x={p.x} y={p.y + 2} fill={hi ? C.orange : C.ink2} fontSize="22" fontFamily="Varela Round" textAnchor={p.a}>
+                {count}
+                <tspan fontSize="13" fill={C.ink3}>{` von ${data.n}`}</tspan>
+              </text>
+            </g>
+          );
+        })}
+        {data.points.map((pt) => (
+          <circle key={pt.pid} cx={xOf(pt.x)} cy={yOf(pt.y)} r={6} fill={C.orange} opacity={0.85} stroke={C.deep} />
+        ))}
+        <text x={W / 2} y={H - 4} fill={C.ink3} fontSize="12" textAnchor="middle">
+          {xLabel} (Selbsteinschätzung 0–100) →
+        </text>
+        <text x={12} y={(top + bottom) / 2} fill={C.ink3} fontSize="12" textAnchor="middle" transform={`rotate(-90 12 ${(top + bottom) / 2})`}>
+          {yLabel} (0–100) →
+        </text>
+      </svg>
+      {onLine > 0 && (
+        <p className="small muted" style={{ margin: '4px 0 0', textAlign: 'center' }}>
+          {onLine} {onLine === 1 ? 'Person liegt' : 'Personen liegen'} genau auf der Mittellinie ({data.midX}) und {onLine === 1 ? 'zählt' : 'zählen'} zur oberen bzw. rechten Hälfte.
+        </p>
+      )}
+    </div>
   );
 }

@@ -30,11 +30,16 @@ import {
   signInAdmin,
 } from '../auth.js';
 import { getSurvey, listSurveys } from '../surveys.js';
-import { loadResultRows, participantInfo } from '../results.js';
+import { hiddenTextKeys, loadRawRows, loadResultRows, participantInfo } from '../results.js';
+import { collectTextItems } from '../../shared/textitems.js';
+import { getTextFlags, saveAiFlags, setManualFlag } from '../textflags.js';
 import { exportTable, exportXlsx } from '../export.js';
 import {
   AiNotConfiguredError,
+  chatAboutSurvey,
+  checkTexts,
   getSummaries,
+  summarizeTerms,
   saveSummary,
   summarizeClusters,
   summarizeSynthesis,
@@ -445,6 +450,8 @@ adminRouter.post('/projects/:id/ai/:key', async (req, res) => {
     let content: AiSummary;
     if (target.mode === 'clusters') {
       content = await summarizeClusters(survey, target, rows, rows.map((r) => r.participant.name));
+    } else if (target.mode === 'terms') {
+      content = await summarizeTerms(survey, target, rows, rows.map((r) => r.participant.name));
     } else {
       const existing = Object.fromEntries(Object.entries(getSummaries(p.id)).map(([k, v]) => [k, v.content]));
       content = await summarizeSynthesis(survey, rows, existing);
@@ -465,12 +472,121 @@ adminRouter.put('/projects/:id/ai/:key', (req, res) => {
   const p = projectOr404(req, res);
   if (!p) return;
   const content = (req.body as { content?: AiSummary }).content;
-  if (!content || (content.mode !== 'clusters' && content.mode !== 'synthesis')) {
+  if (!content || !['clusters', 'terms', 'synthesis'].includes(content.mode)) {
     res.status(400).json({ error: 'Ungültiger Inhalt.' });
     return;
   }
   saveSummary(p.id, String(req.params.key), content, true);
   res.json(getSummaries(p.id)[String(req.params.key)]);
+});
+
+// ---------- Free-text check (non-substantive answers) ----------
+
+function aiErrorResponse(res: Response, e: unknown, what: string) {
+  if (e instanceof AiNotConfiguredError) {
+    res.status(503).json({ error: 'Die KI ist nicht eingerichtet (ANTHROPIC_API_KEY fehlt).' });
+    return;
+  }
+  console.error(`${what} failed`, e);
+  res.status(502).json({ error: e instanceof Error ? `${what} ist fehlgeschlagen: ${e.message}` : `${what} ist fehlgeschlagen.` });
+}
+
+/** All free-text items with their current flag – names stay in the admin, they are never sent to the AI. */
+function textList(p: ProjectRow) {
+  const survey = getSurvey(p.survey_id)!;
+  const raw = loadRawRows(p.id);
+  const flags = getTextFlags(p.id);
+  const hidden = hiddenTextKeys(p.id, survey, raw);
+  const names = new Map(raw.map((r) => [r.participant.id, r.participant.name]));
+  const items = collectTextItems(survey, raw).map((it) => {
+    const f = flags.get(it.key);
+    const current = f && f.text === it.text ? f : undefined;
+    return {
+      key: it.key,
+      qid: it.qid,
+      text: it.text,
+      name: names.get(it.pid) ?? '',
+      hidden: hidden.has(it.key),
+      reason: current?.reason ?? '',
+      source: current?.source ?? null,
+    };
+  });
+  const checkedAt = [...flags.values()].filter((f) => f.source === 'ai').map((f) => f.updatedAt).sort().at(-1) ?? null;
+  return {
+    questions: survey.questions.filter((q) => items.some((i) => i.qid === q.id)).map((q) => ({ id: q.id, short: q.short })),
+    items,
+    checkedAt,
+  };
+}
+
+adminRouter.get('/projects/:id/texts', (req, res) => {
+  const p = projectOr404(req, res);
+  if (!p) return;
+  res.json(textList(p));
+});
+
+adminRouter.post('/projects/:id/texts/check', async (req, res) => {
+  const p = projectOr404(req, res);
+  if (!p) return;
+  const survey = getSurvey(p.survey_id);
+  if (!survey) {
+    res.status(404).json({ error: 'Fragebogen nicht gefunden.' });
+    return;
+  }
+  const raw = loadRawRows(p.id);
+  const items = collectTextItems(survey, raw);
+  try {
+    const verdicts = items.length ? await checkTexts(survey, items, raw.map((r) => r.participant.name)) : new Map<string, string>();
+    saveAiFlags(p.id, items, verdicts);
+    res.json(textList(p));
+  } catch (e) {
+    aiErrorResponse(res, e, 'Die Freitext-Prüfung');
+  }
+});
+
+adminRouter.put('/projects/:id/texts', (req, res) => {
+  const p = projectOr404(req, res);
+  if (!p) return;
+  const body = z.object({ key: z.string().max(200), hidden: z.boolean() }).safeParse(req.body);
+  const survey = getSurvey(p.survey_id);
+  if (!body.success || !survey) {
+    res.status(400).json({ error: 'Ungültige Eingabe.' });
+    return;
+  }
+  const item = collectTextItems(survey, loadRawRows(p.id)).find((it) => it.key === body.data.key);
+  if (!item) {
+    res.status(404).json({ error: 'Antwort nicht gefunden.' });
+    return;
+  }
+  setManualFlag(p.id, item.key, item.text, body.data.hidden);
+  res.json(textList(p));
+});
+
+// ---------- Chat about the survey ----------
+
+const ChatInput = z.object({
+  question: z.string().trim().min(1).max(2000),
+  history: z
+    .array(z.object({ role: z.enum(['user', 'assistant']), content: z.string().max(8000) }))
+    .max(20)
+    .default([]),
+});
+
+adminRouter.post('/projects/:id/chat', async (req, res) => {
+  const p = projectOr404(req, res);
+  if (!p) return;
+  const survey = getSurvey(p.survey_id);
+  const body = ChatInput.safeParse(req.body);
+  if (!survey || !body.success) {
+    res.status(400).json({ error: 'Ungültige Eingabe.' });
+    return;
+  }
+  const rows = loadResultRows(p.id);
+  try {
+    res.json(await chatAboutSurvey(survey, rows, rows.map((r) => r.participant.name), body.data.history, body.data.question));
+  } catch (e) {
+    aiErrorResponse(res, e, 'Die Chat-Antwort');
+  }
 });
 
 // ---------- Export ----------
@@ -509,5 +625,6 @@ adminRouter.get('/projects/:id/export.json', (req, res) => {
     participants,
     summaries: getSummaries(p.id),
     slides: presentationState(p.id),
+    textFlags: [...getTextFlags(p.id).values()],
   });
 });

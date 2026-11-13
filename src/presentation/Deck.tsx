@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { widgetKey, type CobwebResult, type QuestionResult } from '../../shared/aggregate';
 import type { DeckSlide, ResultFilter, Widget } from '../../shared/types';
 import { neutralTitle } from '../../shared/validate';
+import { slideTakeaway } from '../../shared/takeaway';
 import { navigate } from '../router';
 import { num, pct } from '../charts/Viz';
 import { SummaryView } from '../charts/AiViews';
@@ -191,12 +192,19 @@ function SlideView({
     );
   }
   const kpis = single && !NO_KPI.includes(first.kind) ? kpisFor(first, data) : [];
+  const lead = suppressed ? null : slideTakeaway(s, data.results);
   const isSynthesis = s.widgets.length === 1 && s.widgets[0]!.kind === 'ai' && data.summaries[s.widgets[0]!.key]?.content.mode === 'synthesis';
 
   return (
     <>
       <div className="eyebrow">{s.eyebrow}</div>
       <h2>{s.title}</h2>
+      {lead && (
+        <p className="lead">
+          {lead.strong && <b>{lead.strong} </b>}
+          {lead.text}
+        </p>
+      )}
       {suppressed ? (
         <p className="suppressed">
           Zu wenige Antworten für diese Auswahl (n = {n}, Minimum {data.project.minGroupSize}) – zum Schutz der Teilnehmenden ausgeblendet.
@@ -208,7 +216,7 @@ function SlideView({
               {!isSynthesis && widgetTitle(w, data) && <h4>{widgetTitle(w, data)}</h4>}
               <div className="viz">
                 {w.kind === 'ai' ? (
-                  <SummaryView stored={data.summaries[w.key]} compact={!single} maxThemes={single ? 6 : 4} />
+                  <SummaryView stored={data.summaries[w.key]} compact={!single} slide={single} maxThemes={single ? 6 : 4} part={w.part} />
                 ) : (
                   <WidgetViz w={w} data={data} showNames={showNames} large={single} limit={single ? 9 : 7} step={step} />
                 )}

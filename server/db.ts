@@ -70,6 +70,19 @@ db.exec(`
     PRIMARY KEY (project_id, target_key)
   );
 
+  -- Free-text items hidden from evaluation (non-substantive answers such as "siehe oben").
+  -- text is stored so a flag stops applying when the answer is changed later.
+  CREATE TABLE IF NOT EXISTS text_flags (
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    item_key TEXT NOT NULL,
+    text TEXT NOT NULL,
+    hidden INTEGER NOT NULL,
+    reason TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL CHECK (source IN ('ai', 'manual')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (project_id, item_key)
+  );
+
   CREATE TABLE IF NOT EXISTS slide_settings (
     project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     slide_id TEXT NOT NULL,

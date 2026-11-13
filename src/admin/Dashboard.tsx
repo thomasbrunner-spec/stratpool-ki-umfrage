@@ -10,6 +10,7 @@ import {
   type PilotsResult,
   type SelfVsDepthResult,
 } from '../../shared/aggregate';
+import { isFiltered } from '../../shared/aggregate';
 import type { ResultFilter, UseCaseQuestion, Widget } from '../../shared/types';
 import {
   Blindspots,
@@ -23,6 +24,7 @@ import {
   QuestionViz,
   SelfVsDepth,
   UseCaseMap,
+  WordCloud,
   num,
   pct,
 } from '../charts/Viz';
@@ -101,7 +103,6 @@ export function FilterBar({ data, filter, setFilter }: { data: ResultsResponse; 
 
 export const BLUE = '#6DA7EC';
 export const ORANGE = '#FD9A00';
-const SPLIT_COLORS = [ORANGE, BLUE, '#C6D6E6'];
 
 /** Renders one deck widget (shared by dashboard and presentation). */
 export function WidgetViz({
@@ -127,6 +128,11 @@ export function WidgetViz({
     case 'question': {
       const q = survey.questions.find((x) => x.id === w.q);
       const r = results.questions[w.q];
+      // word cloud: AI-condensed terms when available (they cover all answers, so not in a filtered view)
+      const terms = data.summaries[w.q]?.content;
+      if (q && r?.type === 'words' && terms?.mode === 'terms' && terms.terms.length && !isFiltered(results.filter)) {
+        return <WordCloud words={terms.terms} large={large} note={`${terms.answerCount} Antworten, von der KI zu Begriffen verdichtet · Zahl = Nennungen`} />;
+      }
       return q && r ? <QuestionViz q={q} survey={survey} result={r} names={names} showNames={showNames} large={large} limit={limit} /> : null;
     }
     case 'depth': {
@@ -165,21 +171,47 @@ export function WidgetViz({
           </p>
         );
       }
-      const layers = shown.map((g, i) => ({
-        label: `${g.label} (n = ${g.n})`,
-        color: SPLIT_COLORS[i % SPLIT_COLORS.length]!,
-        values: g.cobweb.dims.map((d) => d.now),
-        dashed: i % 2 === 1,
-      }));
       const hidden = byCompany ? sp.groups.filter((g) => g.n > 0 && g.n < minN) : [];
+      const avg = (xs: (number | null)[]) => {
+        const v = xs.filter((x): x is number => x !== null);
+        return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+      };
+      // same build as the overall radar: today first, the target layer on the next key press
+      const legend = [
+        { label: 'heute', color: BLUE },
+        { label: 'Ziel in drei Jahren', color: ORANGE, hidden: step < 1 },
+      ];
       return (
         <div className="cobweb-wrap">
-          <Cobweb labels={shown[0]!.cobweb.dims.map((d) => d.label)} layers={layers} size={large ? 'large' : 'normal'} />
-          <CobwebLegend layers={layers} />
+          <div className="split-grid" style={{ gridTemplateColumns: `repeat(${shown.length}, 1fr)` }}>
+            {shown.map((g) => {
+              const now = avg(g.cobweb.dims.map((d) => d.now));
+              const target = avg(g.cobweb.dims.map((d) => d.target));
+              return (
+                <div className="split-col" key={g.label}>
+                  <h5>{g.label}</h5>
+                  <div className="sub">
+                    n = {g.n} · Ø heute {num(now)}
+                    <span className={step < 1 ? 'build-hidden' : 'build-shown'}> → Ziel {num(target)}</span>
+                  </div>
+                  <Cobweb
+                    labels={g.cobweb.dims.map((d) => d.label)}
+                    // target drawn first so that today's layer stays visible on top
+                    layers={[
+                      { label: 'Ziel in drei Jahren', color: ORANGE, values: g.cobweb.dims.map((d) => d.target), hidden: step < 1 },
+                      { label: 'heute', color: BLUE, values: g.cobweb.dims.map((d) => d.now) },
+                    ]}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <CobwebLegend layers={legend} />
           <p className="small muted" style={{ textAlign: 'center', margin: 0 }}>
             {byCompany
-              ? `Reifegrad heute, jeweils für die eigene Gesellschaft bewertet${hidden.length ? ` · nicht gezeigt (unter ${minN} Antworten): ${hidden.map((g) => g.label).join(', ')}` : ''}`
-              : 'Reifegrad heute · Führung = Geschäftsführung und Abteilungsleitungen'}
+              ? `Reifegrad jeweils für die eigene Gesellschaft bewertet${hidden.length ? ` · nicht gezeigt (unter ${minN} Antworten): ${hidden.map((g) => g.label).join(', ')}` : ''}`
+              : 'Führung = Geschäftsführung und Abteilungsleitungen'}
+            {shown.some((g) => g.n < 5) ? ' · kleine Gruppen: als Stimmungsbild lesen' : ''}
           </p>
         </div>
       );
@@ -233,12 +265,7 @@ export function WidgetViz({
       if (!r.n) return <p className="empty">Noch keine Antworten.</p>;
       return (
         <div>
-          <UseCaseMap q={q} items={r.items} clusters={ai?.mode === 'clusters' ? ai : undefined} />
-          {ai?.mode !== 'clusters' && (
-            <p className="small muted" style={{ margin: 0 }}>
-              Jeder Punkt ist eine genannte Aufgabe. Nach der KI-Zusammenfassung erscheinen hier gebündelte Themen.
-            </p>
-          )}
+          <UseCaseMap q={q} items={r.items} clusters={ai?.mode === 'clusters' ? ai : undefined} limit={limit} />
         </div>
       );
     }
@@ -278,11 +305,11 @@ export function WidgetViz({
 const DERIVED_TITLES: Partial<Record<Widget['kind'], string>> = {
   cobweb: 'Reifegrad-Profil: heute vs. Ziel',
   gaps: 'Lücken je Bereich',
-  cobweb_split: 'Führung vs. Team',
+  cobweb_split: 'Gruppen im Vergleich: heute vs. Ziel',
   blindspots: 'Blinde Flecken („kann ich nicht beurteilen“)',
   hero: 'Kennzahl',
   hero_fte: 'Zeitpotenzial',
-  usecase_map: 'Use-Case-Landkarte',
+  usecase_map: 'Use-Case-Kandidaten',
   pilots: 'Pilot-Bereitschaft',
   depth: 'Nutzungstiefe (höchste erreichte Stufe)',
   self_vs_depth: 'Selbsteinschätzung nach Nutzungstiefe',
@@ -332,7 +359,7 @@ export function Dashboard({ projectId }: { projectId: string }) {
           .filter((w) => w.kind in DERIVED_TITLES)
           .filter((w, i, all) => all.findIndex((x) => JSON.stringify(x) === JSON.stringify(w)) === i)
           .map((w, i) => (
-            <div className="viz-card" key={`d${i}`} style={w.kind === 'usecase_map' || w.kind === 'gaps' ? { gridColumn: '1 / -1' } : undefined}>
+            <div className="viz-card" key={`d${i}`} style={w.kind === 'usecase_map' || w.kind === 'gaps' || w.kind === 'cobweb_split' ? { gridColumn: '1 / -1' } : undefined}>
               <h3>{w.kind === 'cobweb_split' && w.by === 'company' ? 'Gesellschaften im Vergleich' : DERIVED_TITLES[w.kind]}</h3>
               <div className="sub">Abgeleitete Auswertung</div>
               <WidgetViz w={w} data={data} showNames />

@@ -178,7 +178,8 @@ export type Widget =
   | { kind: 'depth'; q: string }
   | { kind: 'self_vs_depth'; self: string; depth: string }
   | { kind: 'matrix'; x: string; y: string; xLabel: string; yLabel: string; quadrants: [string, string, string, string] }
-  | { kind: 'ai'; key: string }
+  /** AI summary; `part` shows only one half of the synthesis (findings or implications) */
+  | { kind: 'ai'; key: string; part?: 'findings' | 'implications' }
   | { kind: 'participation' }
   /** Radar over maturity questions; 'build' reveals the target layer on the next key press */
   | { kind: 'cobweb'; qs: string[]; show: 'now' | 'both' | 'build' }
@@ -208,7 +209,8 @@ export interface AiTarget {
   label: string;
   /** Questions whose texts are summarised; empty for the synthesis */
   questions: string[];
-  mode: 'clusters' | 'synthesis';
+  /** clusters: free texts → themes · terms: short answers → 1–2-word terms (word cloud) · synthesis: overall */
+  mode: 'clusters' | 'terms' | 'synthesis';
   /** Starting hypotheses (e.g. from the offer); themes outside them get flagged as new */
   hypotheses?: string[];
 }

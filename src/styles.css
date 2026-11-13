@@ -382,3 +382,72 @@ svg text { font-family: var(--font-body); }
 .profile-tags { display: flex; gap: 28px; flex-wrap: wrap; }
 .profile-tags .l { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-3); }
 .profile-tags .v { font-family: var(--font-head); font-size: 26px; color: var(--orange); }
+
+/* ---------- Word cloud (autofit) ---------- */
+.wordcloud-wrap { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.wordcloud span { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.wordcloud sup { font-size: 0.42em; color: var(--ink-3); margin-left: 2px; font-family: var(--font-body); vertical-align: super; }
+
+/* ---------- Use-case candidates ---------- */
+.uc { display: flex; flex-direction: column; gap: 10px; }
+.uc-head, .uc-row { display: grid; grid-template-columns: minmax(220px, 34%) 1fr 96px; gap: 16px; align-items: center; }
+.uc-head { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-3); }
+.uc-label { font-size: 15px; line-height: 1.25; }
+.uc-track { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.uc-bar { display: flex; height: 18px; border-radius: 9px; overflow: hidden; min-width: 6px; }
+.uc-bar > span { display: block; height: 100%; }
+.uc-val { font-family: var(--font-head); font-size: 15px; white-space: nowrap; }
+.uc-quick { font-size: 11px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--navy); background: var(--orange); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.uc-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
+.uc-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+/* ---------- AI summaries on slides ---------- */
+.clusters-slide .cluster { padding: 12px 14px; }
+.clusters-slide .cluster p { font-size: 13px; }
+.clusters-slide .cluster q { font-size: 12.5px; }
+.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.synth { gap: 14px; }
+.synth-head { font-family: var(--font-head); font-size: 21px; line-height: 1.3; color: var(--orange); margin: 0; }
+.synth-label { font-size: 12px; color: var(--ink-3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+.synth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.synth-card { border: 1px solid var(--line); border-radius: 10px; background: var(--navy-deep); padding: 12px 16px; min-width: 0; }
+.synth-t { font-family: var(--font-head); font-size: 16px; margin-bottom: 4px; }
+.synth-x { font-size: 13.5px; line-height: 1.45; color: var(--ink-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; }
+.synth-q { display: flex; flex-wrap: wrap; gap: 8px; }
+.synth-q span { border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; color: var(--ink-2); }
+.terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.terms span { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 13px; }
+.terms b { color: var(--orange); font-family: var(--font-head); margin-left: 4px; }
+
+/* ---------- Split radar (group comparison with build) ---------- */
+.split-grid { display: grid; gap: 18px; height: 100%; min-height: 0; }
+.split-col { display: flex; flex-direction: column; min-height: 0; }
+.split-col h5 { font-family: var(--font-head); font-size: 17px; text-align: center; margin: 0 0 2px; }
+.split-col .sub { font-size: 13px; color: var(--ink-3); text-align: center; }
+.split-col svg { flex: 1; min-height: 0; }
+
+/* ---------- Slide takeaway ---------- */
+.slide .lead { font-size: 17px; color: var(--ink-2); margin: -12px 0 16px; max-width: 1050px; line-height: 1.4; }
+.slide .lead b { color: var(--orange); font-weight: 600; }
+
+/* ---------- AI admin: sub tabs, text check, chat ---------- */
+.subtabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.subtabs button { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--ink-2); cursor: pointer; font-weight: 600; }
+.subtabs button.on { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+.text-items { display: grid; gap: 6px; }
+.text-item { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--navy-deep); }
+.text-item .txt { flex: 1; font-size: 14px; }
+.text-item.off .txt { text-decoration: line-through; color: var(--ink-3); }
+.chat { display: flex; flex-direction: column; gap: 16px; }
+.chat-examples { display: flex; flex-wrap: wrap; gap: 8px; }
+.chat-turn { display: flex; flex-direction: column; gap: 8px; }
+.chat-q { align-self: flex-end; max-width: 80%; background: var(--orange-soft); border: 1px solid rgba(253,154,0,.45); border-radius: 14px 14px 4px 14px; padding: 10px 14px; }
+.chat-a { align-self: flex-start; max-width: 92%; background: var(--panel); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.chat-answer p { margin: 0 0 8px; line-height: 1.5; }
+.chat-answer ul { margin: 0 0 8px; padding-left: 20px; }
+.chat-answer li { margin-bottom: 4px; }
+.chat-opinion { border-left: 3px solid var(--ink-3); padding-left: 10px; color: var(--ink-2); font-style: italic; }
+.chat-sources summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.chat-sources .quote { margin-top: 8px; }
+.chat-input { position: sticky; bottom: 0; background: var(--navy); padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.clusters-slide .cluster q.clamp { display: -webkit-box; }
